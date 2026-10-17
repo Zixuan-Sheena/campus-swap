@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/browseFragment"
+        android:icon="@drawable/ic_browse"
+        android:title="@string/nav_browse" />
+
+    <item
+        android:id="@+id/categoriesFragment"
+        android:icon="@drawable/ic_categories"
+        android:title="@string/nav_categories" />
+
+    <item
+        android:id="@+id/listItemFragment"
+        android:icon="@drawable/ic_list_item"
+        android:title="@string/nav_list_item" />
+
+    <item
+        android:id="@+id/chatsFragment"
+        android:icon="@drawable/ic_chats"
+        android:title="@string/nav_chats" />
+
+    <item
+        android:id="@+id/profileFragment"
+        android:icon="@drawable/ic_profile"
+        android:title="@string/nav_profile" />
+</menu>

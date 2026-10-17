@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/browseFragment">
+
+    <fragment
+        android:id="@+id/browseFragment"
+        android:name="click.sheena.campusswap.ui.screens.BrowseFragment"
+        android:label="@string/nav_browse" />
+
+    <fragment
+        android:id="@+id/categoriesFragment"
+        android:name="click.sheena.campusswap.ui.screens.CategoriesFragment"
+        android:label="@string/nav_categories" />
+
+    <fragment
+        android:id="@+id/listItemFragment"
+        android:name="click.sheena.campusswap.ui.screens.ListItemFragment"
+        android:label="@string/nav_list_item" />
+
+    <fragment
+        android:id="@+id/chatsFragment"
+        android:name="click.sheena.campusswap.ui.screens.ChatsFragment"
+        android:label="@string/nav_chats" />
+
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="click.sheena.campusswap.ui.screens.ProfileFragment"
+        android:label="@string/nav_profile" />
+
+</navigation>
