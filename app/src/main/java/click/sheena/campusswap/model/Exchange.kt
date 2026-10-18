@@ -10,9 +10,9 @@ enum class ExchangeStatus {
 
 data class Exchange(
     val id: String = UUID.randomUUID().toString(),
-    val itemId: Long,
-    val buyerId: Long,
-    val sellerId: Long,
+    val itemId: String,
+    val userLowId: String,
+    val userHighId: String,
     val status: ExchangeStatus,
     val createdAt: Long = System.currentTimeMillis(),
     val updatedAt: Long = System.currentTimeMillis()

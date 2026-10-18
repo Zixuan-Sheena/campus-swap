@@ -147,10 +147,12 @@ Proposal 方案草稿保留在页面状态中，发送后保存为不可原地�
 | conversationId | String | 外键 -> `Conversation.id` |
 | version | Int | 同一会话内从 1 递增 |
 | proposerId | String | 外键 -> `User.id`；必须是发起者 |
+| receiverId | String | 外键 -> `User.id` |
 | status | ProposalStatus | `PENDING` / `SUPERSEDED` / `ACCEPTED` / `REJECTED` / `WITHDRAWN` / `INVALIDATED` |
 | meetingAt | Long | 约定交接时间，发送时必须在未来 |
 | eircode | String | 交接地点 Eircode；初版仅输入和展示，不做在线地址验证 |
 | createdAt | Long | 发送时间；清单、时间与地点发送后不再原地修改 |
+
 
 ### Exchange（已达成的交换）
 

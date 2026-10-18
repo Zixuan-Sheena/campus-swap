@@ -5,4 +5,5 @@
     <string name="nav_categories">Categories</string>
     <string name="nav_list_item">List Item</string>
     <string name="nav_profile">Profile</string>
+    <string name="item_image">Item Image</string>
 </resources>

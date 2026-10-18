@@ -17,19 +17,20 @@ enum class ItemCategory {
     SPORTS,
     TOOLS,
     VEHICLES,
+    FOOD,
     OTHER
 }
 
 data class Item(
     val id: String = UUID.randomUUID().toString(),
-    val ownerId: Long,
+    val ownerId: String,
     var title: String,
     val description: String,
     val category: ItemCategory,
     val wantedDescription: String,
     val imagePath: String,
     val status: ItemStatus = ItemStatus.AVAILABLE,
-    val revision: Int = 0,
+    val revision: Int = 1,
     val createdAt: Long = System.currentTimeMillis(),
     val updatedAt: Long = createdAt
 ){
@@ -59,7 +60,7 @@ data class Item(
         )
     }
 
-    fun isOwnedBy(userId: Long): Boolean {
+    fun isOwnedBy(userId: String): Boolean {
         return this.ownerId == userId
     }
 
@@ -67,7 +68,7 @@ data class Item(
         return this.status == ItemStatus.AVAILABLE
     }
 
-    fun canBeEditedBy(userId: Long): Boolean {
+    fun canBeEditedBy(userId: String): Boolean {
         return this.ownerId == userId && this.status == ItemStatus.AVAILABLE
     }
 }

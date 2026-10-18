@@ -4,7 +4,7 @@ import java.util.UUID
 
 data class Conversation(
     val id: String = UUID.randomUUID().toString(),
-    val userLowId: Long,
-    val userHighId: Long,
+    val userLowId: String,
+    val userHighId: String,
     val createdAt: Long = System.currentTimeMillis()
 )
