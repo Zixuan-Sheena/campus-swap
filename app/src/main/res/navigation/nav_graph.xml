@@ -11,9 +11,9 @@
         android:label="@string/nav_browse" />
 
     <fragment
-        android:id="@+id/categoriesFragment"
-        android:name="click.sheena.campusswap.ui.screens.CategoriesFragment"
-        android:label="@string/nav_categories" />
+        android:id="@+id/searchFragment"
+        android:name="click.sheena.campusswap.ui.screens.SearchFragment"
+        android:label="@string/nav_search" />
 
     <fragment
         android:id="@+id/listItemFragment"

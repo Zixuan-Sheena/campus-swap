@@ -2,7 +2,7 @@
     <string name="app_name">CampusSwap</string>
     <string name="nav_browse">Browse</string>
     <string name="nav_chats">Chats</string>
-    <string name="nav_categories">Categories</string>
+    <string name="nav_search">Search</string>
     <string name="nav_list_item">List Item</string>
     <string name="nav_profile">Profile</string>
     <string name="item_image">Item Image</string>

@@ -1,5 +1,6 @@
 package click.sheena.campusswap.ui.adapters
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,7 +11,7 @@ import click.sheena.campusswap.model.Item
 import android.widget.ImageView
 
 class ItemAdapter(
-    private val items: List<Item>
+    private var items: List<Item>
 ) : RecyclerView.Adapter<ItemAdapter.ItemViewHolder>() {
 
     class ItemViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -42,5 +43,11 @@ class ItemAdapter(
 
     override fun getItemCount(): Int {
         return items.size
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    fun updateItems(newItems: List<Item>) {
+        items = newItems
+        notifyDataSetChanged()
     }
 }
