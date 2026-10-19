@@ -2,10 +2,11 @@ package click.sheena.campusswap.data
 
 import click.sheena.campusswap.model.Item
 import click.sheena.campusswap.model.ItemCategory
+import click.sheena.campusswap.model.User
 import kotlin.collections.mutableListOf
 
-object SampleItems {
-    val items = mutableListOf(
+object SampleData {
+    val items = listOf(
         Item(
             ownerId = "114514",
             title = "Two McMuffins",
@@ -45,6 +46,29 @@ object SampleItems {
             category = ItemCategory.ELECTRONICS,
             wantedDescription = "Looking for a new camera or other photography equipment.",
             imagePath = ""
+        )
+    )
+
+    val users = listOf(
+        User(
+            id = "114514",
+            name = "Alice",
+        ),
+        User(
+            id = "1919810",
+            name = "Bob",
+        ),
+        User(
+            id = "qwerty",
+            name = "Charlie",
+        ),
+        User(
+            id = "12345678",
+            name = "David",
+        ),
+        User(
+            id = "87654321",
+            name = "Eve",
         )
     )
 }

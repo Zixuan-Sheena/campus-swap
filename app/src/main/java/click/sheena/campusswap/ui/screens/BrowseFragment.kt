@@ -6,11 +6,8 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import click.sheena.campusswap.R
-import click.sheena.campusswap.data.SampleItems
+import click.sheena.campusswap.data.ItemRepository
 import click.sheena.campusswap.ui.adapters.ItemAdapter
-import androidx.appcompat.widget.Toolbar
-import androidx.appcompat.app.AlertDialog
-import android.widget.TextView
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import click.sheena.campusswap.model.ItemCategory
@@ -31,7 +28,7 @@ class BrowseFragment : Fragment(R.layout.fragment_browse) {
                 StaggeredGridLayoutManager.VERTICAL
             )
 
-        val itemAdapter = ItemAdapter(SampleItems.items)
+        val itemAdapter = ItemAdapter(ItemRepository.getItems())
         recyclerView.adapter = itemAdapter
 
         val chipGroup =
@@ -55,14 +52,7 @@ class BrowseFragment : Fragment(R.layout.fragment_browse) {
             }
 
             chip.setOnClickListener {
-                val filteredItems = if (category == null) {
-                    SampleItems.items
-                } else {
-                    SampleItems.items.filter {
-                        it.category == category
-                    }
-                }
-
+                val filteredItems = ItemRepository.getItems(category)
                 itemAdapter.updateItems(filteredItems)
             }
         }
