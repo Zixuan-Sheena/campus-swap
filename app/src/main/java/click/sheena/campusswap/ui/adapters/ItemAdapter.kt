@@ -11,7 +11,8 @@ import click.sheena.campusswap.R
 import click.sheena.campusswap.model.Item
 
 class ItemAdapter(
-    private var items: List<Item>
+    private var items: List<Item>,
+    private val onItemClick: (Item) -> Unit
 ) : RecyclerView.Adapter<ItemAdapter.ItemViewHolder>() {
 
     class ItemViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -39,6 +40,9 @@ class ItemAdapter(
         holder.title.text = item.title
         holder.category.text = item.category.name
         holder.wanted.text = item.wantedDescription
+        holder.itemView.setOnClickListener {
+            onItemClick(item)
+        }
     }
 
     override fun getItemCount(): Int {

@@ -15,4 +15,9 @@
     <string name="profile_user_id">User ID：%1$s</string>
     <string name="profile_select_user_hint">Select a demo user</string>
     <string name="profile_no_users_hint">No Users Available</string>
+    <string name="item_detail">Item details</string>
+    <string name="wanted_item">Looking for</string>
+    <string name="item_description">Description</string>
+    <string name="add_favourite">Add to favourites</string>
+    <string name="remove_favourite">Remove from favourites</string>
 </resources>

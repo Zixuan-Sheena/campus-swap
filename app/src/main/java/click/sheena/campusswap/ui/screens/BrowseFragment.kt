@@ -7,10 +7,11 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import click.sheena.campusswap.R
 import click.sheena.campusswap.data.ItemRepository
-import click.sheena.campusswap.model.ItemCategory
 import click.sheena.campusswap.ui.adapters.ItemAdapter
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
+import click.sheena.campusswap.model.ItemCategory
+import androidx.navigation.fragment.findNavController
 
 class BrowseFragment : Fragment(R.layout.fragment_browse) {
     override fun onViewCreated(
@@ -28,7 +29,16 @@ class BrowseFragment : Fragment(R.layout.fragment_browse) {
                 StaggeredGridLayoutManager.VERTICAL
             )
 
-        val itemAdapter = ItemAdapter(ItemRepository.getItems())
+        val itemAdapter = ItemAdapter(
+            items = ItemRepository.getItems()
+        ) { item ->
+            findNavController().navigate(
+                R.id.itemDetailFragment,
+                Bundle().apply {
+                    putString(ItemDetailFragment.ARG_ITEM_ID, item.id)
+                }
+            )
+        }
         recyclerView.adapter = itemAdapter
 
         val chipGroup =
