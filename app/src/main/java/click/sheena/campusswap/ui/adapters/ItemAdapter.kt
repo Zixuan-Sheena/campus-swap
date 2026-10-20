@@ -4,11 +4,11 @@ import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import click.sheena.campusswap.R
 import click.sheena.campusswap.model.Item
-import android.widget.ImageView
 
 class ItemAdapter(
     private var items: List<Item>
@@ -34,7 +34,7 @@ class ItemAdapter(
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
         val item = items[position]
 
-        val imageResource =R.drawable.sample_cat
+        val imageResource = R.drawable.sample_cat
         holder.image.setImageResource(imageResource)
         holder.title.text = item.title
         holder.category.text = item.category.name

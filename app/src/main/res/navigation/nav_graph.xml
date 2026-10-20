@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<navigation
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/nav_graph"
     app:startDestination="@id/browseFragment">
@@ -29,5 +28,20 @@
         android:id="@+id/profileFragment"
         android:name="click.sheena.campusswap.ui.screens.ProfileFragment"
         android:label="@string/nav_profile" />
+
+    <fragment
+        android:id="@+id/myItemsFragment"
+        android:name="click.sheena.campusswap.ui.screens.MyItemsFragment"
+        android:label="@string/profile_my_items" />
+
+    <fragment
+        android:id="@+id/myFavouritesFragment"
+        android:name="click.sheena.campusswap.ui.screens.MyFavouritesFragment"
+        android:label="@string/profile_my_favourites" />
+
+    <fragment
+        android:id="@+id/aboutFragment"
+        android:name="click.sheena.campusswap.ui.screens.AboutFragment"
+        android:label="@string/profile_about" />
 
 </navigation>

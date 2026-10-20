@@ -1,6 +1,6 @@
 package click.sheena.campusswap.model
 
-data class ProposalItem (
+data class ProposalItem(
     val proposalId: String,
     val itemId: String,
     val ownerIdSnapshot: String,
@@ -10,4 +10,4 @@ data class ProposalItem (
     val categorySnapshot: String,
     val imagePathSnapshot: String,
 
-)
+    )

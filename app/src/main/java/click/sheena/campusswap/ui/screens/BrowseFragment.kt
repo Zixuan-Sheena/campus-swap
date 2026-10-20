@@ -7,10 +7,10 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import click.sheena.campusswap.R
 import click.sheena.campusswap.data.ItemRepository
+import click.sheena.campusswap.model.ItemCategory
 import click.sheena.campusswap.ui.adapters.ItemAdapter
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
-import click.sheena.campusswap.model.ItemCategory
 
 class BrowseFragment : Fragment(R.layout.fragment_browse) {
     override fun onViewCreated(

@@ -1,13 +1,18 @@
 package click.sheena.campusswap.data
 
+import click.sheena.campusswap.model.Favourite
 import click.sheena.campusswap.model.Item
 import click.sheena.campusswap.model.ItemCategory
 import click.sheena.campusswap.model.User
-import kotlin.collections.mutableListOf
 
+/**
+ * Read-only Sample data for testing and demonstration purposes.
+ * The data will be retrieved by Item/User/FavouriteRepository and be modified in memory, but will not be persisted.
+ */
 object SampleData {
     val items = listOf(
         Item(
+            id = "114514-1",
             ownerId = "114514",
             title = "Two McMuffins",
             description = "Tasty, good for breakfast. Exchange with a coffee or a donut, or a croissant, or a bagel, or a muffin, or a scone, or a pancake, or a waffle, or a crepe, or a tart, or a pie, or a cake, or a cookie, or a brownie, or a bar.",
@@ -16,7 +21,8 @@ object SampleData {
             imagePath = ""
         ),
         Item(
-            ownerId = "1919810",
+            id = "114514-2",
+            ownerId = "114514",
             title = "Tablet Stand",
             description = "Used for holding tablets, in good condition.",
             category = ItemCategory.SPORTS,
@@ -24,7 +30,8 @@ object SampleData {
             imagePath = ""
         ),
         Item(
-            ownerId = "qwerty",
+            id = "1919810-1",
+            ownerId = "1919810",
             title = "Cat",
             description = "Cute, but damaging furniture. Needs a home.",
             category = ItemCategory.OTHER,
@@ -32,7 +39,8 @@ object SampleData {
             imagePath = ""
         ),
         Item(
-            ownerId = "12345678",
+            id = "1919810-2",
+            ownerId = "1919810",
             title = "Casa Mana",
             description = "Too sweet, need to exchange for something more bitter.",
             category = ItemCategory.FOOD,
@@ -40,7 +48,8 @@ object SampleData {
             imagePath = ""
         ),
         Item(
-            ownerId = "87654321",
+            id = "12345678-1",
+            ownerId = "12345678",
             title = "Canon New FD 50mm f/1.4 Lens",
             description = "A classic lens for Canon FD mount cameras. Great for portraits and low-light photography.",
             category = ItemCategory.ELECTRONICS,
@@ -59,16 +68,22 @@ object SampleData {
             name = "Bob",
         ),
         User(
-            id = "qwerty",
-            name = "Charlie",
-        ),
-        User(
             id = "12345678",
             name = "David",
         ),
         User(
-            id = "87654321",
-            name = "Eve",
+            id = "empty123",
+            name = "Eva",
         )
     )
+
+    val favourites = listOf(
+        Favourite(
+            userId = "114514",
+            itemId = "1919810-1",
+            createdAt = System.currentTimeMillis()
+        )
+    )
+
+
 }

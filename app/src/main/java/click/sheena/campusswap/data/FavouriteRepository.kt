@@ -3,7 +3,7 @@ package click.sheena.campusswap.data
 import click.sheena.campusswap.model.Favourite
 
 object FavouriteRepository {
-    private val favourites = mutableListOf<Favourite>()
+    private val favourites = SampleData.favourites.map { it.copy() }.toMutableList()
 
     fun addFavourite(userId: String, itemId: String) {
         if (isFavourite(userId, itemId)) return

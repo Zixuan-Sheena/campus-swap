@@ -33,7 +33,7 @@ data class Item(
     val revision: Int = 1,
     val createdAt: Long = System.currentTimeMillis(),
     val updatedAt: Long = createdAt
-){
+) {
     init {
         require(title.isNotBlank()) { "Title cannot be blank" }
         require(description.isNotBlank()) { "Description cannot be blank" }

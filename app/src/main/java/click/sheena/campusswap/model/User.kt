@@ -1,4 +1,5 @@
 package click.sheena.campusswap.model
+
 import java.util.UUID
 
 data class User(

@@ -6,4 +6,13 @@
     <string name="nav_list_item">List Item</string>
     <string name="nav_profile">Profile</string>
     <string name="item_image">Item Image</string>
+    <string name="profile_my_items">My Items</string>
+    <string name="profile_my_favourites">My Favourites</string>
+    <string name="profile_switch_user">Switch User</string>
+    <string name="profile_logout">Logout</string>
+    <string name="profile_about">About CampusSwap</string>
+    <string name="profile_not_logged_in">Not logged in</string>
+    <string name="profile_user_id">User ID：%1$s</string>
+    <string name="profile_select_user_hint">Select a demo user</string>
+    <string name="profile_no_users_hint">No Users Available</string>
 </resources>
