@@ -20,4 +20,6 @@
     <string name="item_description">Description</string>
     <string name="add_favourite">Add to favourites</string>
     <string name="remove_favourite">Remove from favourites</string>
+    <string name="edit_item">Edit item</string>
+    <string name="withdraw_item">Withdraw item</string>
 </resources>

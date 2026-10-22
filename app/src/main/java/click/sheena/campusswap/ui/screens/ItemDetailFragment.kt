@@ -13,14 +13,13 @@ import click.sheena.campusswap.R
 import click.sheena.campusswap.data.FavouriteRepository
 import click.sheena.campusswap.data.ItemRepository
 import click.sheena.campusswap.model.Item
+import click.sheena.campusswap.data.UserSession
 
 class ItemDetailFragment : Fragment(R.layout.fragment_item_detail) {
 
     companion object {
         const val ARG_ITEM_ID = "itemId"
 
-        // 临时演示身份；之后应改为从用户状态仓库读取。
-        const val CURRENT_USER_ID = "114514"
     }
 
     private var item: Item? = null
@@ -61,7 +60,6 @@ class ItemDetailFragment : Fragment(R.layout.fragment_item_detail) {
         val wanted = view.findViewById<TextView>(R.id.detailWanted)
         val description = view.findViewById<TextView>(R.id.detailDescription)
 
-        // 当前 ItemCard 也统一显示示例图片。
         image.setImageResource(R.drawable.sample_cat)
 
         title.text = item.title
@@ -79,46 +77,67 @@ class ItemDetailFragment : Fragment(R.layout.fragment_item_detail) {
             findNavController().navigateUp()
         }
 
-        updateFavouriteIcon(toolbar.menu)
+        updateToolbarActions(toolbar.menu)
 
         toolbar.setOnMenuItemClickListener { menuItem ->
-            if (menuItem.itemId == R.id.action_favourite) {
-                toggleFavourite()
-                updateFavouriteIcon(toolbar.menu)
-                true
-            } else {
-                false
+            when (menuItem.itemId) {
+                R.id.action_favourite -> {
+                    toggleFavourite()
+                    updateToolbarActions(toolbar.menu)
+                    true
+                }
+
+                R.id.action_edit_item -> {
+                    true
+                }
+
+                R.id.action_withdraw_item -> {
+                    true
+                }
+
+                else -> false
             }
+        }
+    }
+    private fun updateToolbarActions(menu: Menu) {
+        val currentItem = item ?: return
+        val currentUser = UserSession.getCurrentUser()
+
+        val favouriteAction = menu.findItem(R.id.action_favourite)
+        val editAction = menu.findItem(R.id.action_edit_item)
+        val withdrawAction = menu.findItem(R.id.action_withdraw_item)
+
+        val isOwner = currentUser?.id == currentItem.ownerId
+
+        favouriteAction.isVisible = currentUser != null && !isOwner
+        editAction.isVisible = isOwner
+        withdrawAction.isVisible = isOwner
+
+        if (currentUser != null && !isOwner) {
+            updateFavouriteIcon(menu, currentUser.id)
         }
     }
 
     private fun toggleFavourite() {
         val currentItem = item ?: return
+        val currentUserId = UserSession.getCurrentUser()?.id ?: return
 
-        if (
-            FavouriteRepository.isFavourite(
-                CURRENT_USER_ID,
-                currentItem.id
-            )
-        ) {
-            FavouriteRepository.removeFavourite(
-                CURRENT_USER_ID,
-                currentItem.id
-            )
+        if (FavouriteRepository.isFavourite(currentUserId, currentItem.id)) {
+            FavouriteRepository.removeFavourite(currentUserId, currentItem.id)
         } else {
-            FavouriteRepository.addFavourite(
-                CURRENT_USER_ID,
-                currentItem.id
-            )
+            FavouriteRepository.addFavourite(currentUserId, currentItem.id)
         }
     }
 
-    private fun updateFavouriteIcon(menu: Menu) {
+    private fun updateFavouriteIcon(
+        menu: Menu,
+        currentUserId: String
+    ) {
         val currentItem = item ?: return
         val favouriteItem = menu.findItem(R.id.action_favourite)
 
         val isFavourite = FavouriteRepository.isFavourite(
-            CURRENT_USER_ID,
+            currentUserId,
             currentItem.id
         )
 

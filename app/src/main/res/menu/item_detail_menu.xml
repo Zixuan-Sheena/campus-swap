@@ -8,4 +8,14 @@
         android:title="@string/add_favourite"
         app:showAsAction="always" />
 
+    <item
+        android:id="@+id/action_edit_item"
+        android:title="@string/edit_item"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_withdraw_item"
+        android:title="@string/withdraw_item"
+        app:showAsAction="never" />
+
 </menu>
