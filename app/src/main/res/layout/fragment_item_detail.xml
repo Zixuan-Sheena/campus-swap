@@ -10,8 +10,7 @@
         android:id="@+id/detailToolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:title="@string/item_detail"
-        app:navigationIcon="@drawable/ic_back_arrow" />
+        app:title="@string/item_detail" />
 
     <ScrollView
         android:layout_width="match_parent"
@@ -45,6 +44,21 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/detailOwner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/detailUpdateAt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textSize="12sp"
+                android:textColor="?android:attr/textColorSecondary" />
 
             <TextView
                 android:layout_width="match_parent"

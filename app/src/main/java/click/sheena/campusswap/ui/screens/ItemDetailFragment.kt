@@ -2,10 +2,10 @@ package click.sheena.campusswap.ui.screens
 
 import android.os.Bundle
 import android.view.Menu
-import android.view.MenuItem
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
@@ -14,6 +14,12 @@ import click.sheena.campusswap.data.FavouriteRepository
 import click.sheena.campusswap.data.ItemRepository
 import click.sheena.campusswap.model.Item
 import click.sheena.campusswap.data.UserSession
+import click.sheena.campusswap.data.UserRepository
+import java.text.DateFormat
+import java.util.Date
+import androidx.navigation.ui.setupWithNavController
+import click.sheena.campusswap.ui.NavigationConfig
+import com.google.android.material.snackbar.Snackbar
 
 class ItemDetailFragment : Fragment(R.layout.fragment_item_detail) {
 
@@ -59,6 +65,15 @@ class ItemDetailFragment : Fragment(R.layout.fragment_item_detail) {
         val category = view.findViewById<TextView>(R.id.detailCategory)
         val wanted = view.findViewById<TextView>(R.id.detailWanted)
         val description = view.findViewById<TextView>(R.id.detailDescription)
+        val ownerText = view.findViewById<TextView>(R.id.detailOwner)
+        val updatedAtText = view.findViewById<TextView>(R.id.detailUpdateAt)
+        val owner = UserRepository.getUserById(item.ownerId)
+        val ownerName = owner?.name ?: getString(R.string.unknown_user)
+        val dateFormat = DateFormat.getDateTimeInstance(
+            DateFormat.MEDIUM,
+            DateFormat.SHORT
+        )
+        val uploadedAt = dateFormat.format(Date(item.createdAt))
 
         image.setImageResource(R.drawable.sample_cat)
 
@@ -66,6 +81,8 @@ class ItemDetailFragment : Fragment(R.layout.fragment_item_detail) {
         category.text = item.category.name
         wanted.text = item.wantedDescription
         description.text = item.description
+        ownerText.text = getString(R.string.item_owner, ownerName)
+        updatedAtText.text = getString(R.string.item_created_at, uploadedAt)
     }
 
     private fun setupToolbar(view: View) {
@@ -73,9 +90,10 @@ class ItemDetailFragment : Fragment(R.layout.fragment_item_detail) {
 
         toolbar.inflateMenu(R.menu.item_detail_menu)
 
-        toolbar.setNavigationOnClickListener {
-            findNavController().navigateUp()
-        }
+        toolbar.setupWithNavController(
+            findNavController(),
+            NavigationConfig.appBarConfiguration
+        )
 
         updateToolbarActions(toolbar.menu)
 
@@ -92,6 +110,7 @@ class ItemDetailFragment : Fragment(R.layout.fragment_item_detail) {
                 }
 
                 R.id.action_withdraw_item -> {
+                    withdrawItem(view)
                     true
                 }
 
@@ -110,8 +129,9 @@ class ItemDetailFragment : Fragment(R.layout.fragment_item_detail) {
         val isOwner = currentUser?.id == currentItem.ownerId
 
         favouriteAction.isVisible = currentUser != null && !isOwner
-        editAction.isVisible = isOwner
-        withdrawAction.isVisible = isOwner
+        val canEdit = isOwner && currentItem.isAvailable()
+        editAction.isVisible = canEdit
+        withdrawAction.isVisible = canEdit
 
         if (currentUser != null && !isOwner) {
             updateFavouriteIcon(menu, currentUser.id)
@@ -122,11 +142,21 @@ class ItemDetailFragment : Fragment(R.layout.fragment_item_detail) {
         val currentItem = item ?: return
         val currentUserId = UserSession.getCurrentUser()?.id ?: return
 
-        if (FavouriteRepository.isFavourite(currentUserId, currentItem.id)) {
+        val messageRes = if (
+            FavouriteRepository.isFavourite(currentUserId, currentItem.id)
+        ) {
             FavouriteRepository.removeFavourite(currentUserId, currentItem.id)
+            R.string.item_removed_from_favourites
         } else {
             FavouriteRepository.addFavourite(currentUserId, currentItem.id)
+            R.string.item_added_to_favourites
         }
+
+        Toast.makeText(
+            requireContext(),
+            messageRes,
+            Toast.LENGTH_SHORT
+        ).show()
     }
 
     private fun updateFavouriteIcon(
@@ -148,5 +178,34 @@ class ItemDetailFragment : Fragment(R.layout.fragment_item_detail) {
             favouriteItem.setIcon(R.drawable.ic_favorite_border)
             favouriteItem.setTitle(R.string.add_favourite)
         }
+    }
+
+    private fun withdrawItem(view: View) {
+        val currentItem = item ?: return
+        val currentUserId = UserSession.getCurrentUser()?.id ?: return
+
+        val updatedItem = ItemRepository.withdrawItem(
+            itemId = currentItem.id,
+            userId = currentUserId
+        )
+
+        if (updatedItem == null) {
+            Toast.makeText(
+                requireContext(),
+                R.string.item_withdraw_failed,
+                Toast.LENGTH_SHORT
+            ).show()
+            return
+        }
+
+        item = updatedItem
+
+        Toast.makeText(
+            requireContext(),
+            R.string.item_withdrawn,
+            Toast.LENGTH_SHORT
+        ).show()
+
+        findNavController().navigateUp()
     }
 }
