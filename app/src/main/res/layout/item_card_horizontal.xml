@@ -7,7 +7,8 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:minHeight="120dp">
 
         <ImageView
             android:id="@+id/itemHorizontalImage"
@@ -17,21 +18,20 @@
             android:contentDescription="@null"
             android:importantForAccessibility="no"
             app:layout_constraintWidth_percent="0.3"
-            app:layout_constraintDimensionRatio="H,1:1"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent" />
 
         <LinearLayout
             android:layout_width="0dp"
-            android:layout_height="0dp"
+            android:layout_height="wrap_content"
             android:orientation="vertical"
             android:gravity="center_vertical"
             android:padding="12dp"
             app:layout_constraintStart_toEndOf="@id/itemHorizontalImage"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/itemHorizontalImage"
-            app:layout_constraintBottom_toBottomOf="@id/itemHorizontalImage">
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent">
 
             <TextView
                 android:id="@+id/itemHorizontalTitle"

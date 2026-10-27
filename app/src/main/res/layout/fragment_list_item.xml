@@ -12,4 +12,87 @@
         android:minHeight="?attr/actionBarSize"
         app:title="@string/nav_list_item" />
 
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <EditText
+                android:id="@+id/itemTitleInput"
+                android:saveEnabled="false"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/item_form_title"
+                android:inputType="textCapSentences"
+                android:maxLines="1" />
+
+            <EditText
+                android:id="@+id/itemDescriptionInput"
+                android:saveEnabled="false"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:gravity="top"
+                android:hint="@string/item_form_description"
+                android:inputType="textCapSentences|textMultiLine"
+                android:minLines="3" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:labelFor="@id/itemCategorySpinner"
+                android:text="@string/item_form_category" />
+
+            <Spinner
+                android:id="@+id/itemCategorySpinner"
+                android:saveEnabled="false"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:spinnerMode="dropdown" />
+
+            <EditText
+                android:id="@+id/itemWantedInput"
+                android:saveEnabled="false"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:gravity="top"
+                android:hint="@string/item_form_wanted"
+                android:inputType="textCapSentences|textMultiLine"
+                android:minLines="2" />
+
+            <ImageView
+                android:id="@+id/itemImagePreview"
+                android:visibility="gone"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:layout_marginTop="16dp"
+                android:contentDescription="@string/item_image"
+                android:scaleType="centerCrop" />
+
+            <Button
+                android:id="@+id/selectItemImageButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/item_form_select_image" />
+
+            <Button
+                android:id="@+id/saveItemButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="@string/item_form_publish" />
+
+        </LinearLayout>
+    </ScrollView>
+
 </LinearLayout>

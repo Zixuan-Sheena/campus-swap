@@ -14,6 +14,8 @@ import click.sheena.campusswap.model.ItemCategory
 import androidx.navigation.fragment.findNavController
 
 class BrowseFragment : Fragment(R.layout.fragment_browse) {
+    private var selectedCategory: ItemCategory? = null
+
     override fun onViewCreated(
         view: View,
         savedInstanceState: Bundle?
@@ -30,7 +32,7 @@ class BrowseFragment : Fragment(R.layout.fragment_browse) {
             )
 
         val itemAdapter = ItemAdapter(
-            items = ItemRepository.getItems()
+            items = ItemRepository.getItems(selectedCategory)
         ) { item ->
             findNavController().navigate(
                 R.id.itemDetailFragment,
@@ -57,14 +59,25 @@ class BrowseFragment : Fragment(R.layout.fragment_browse) {
             chipGroup.addView(chip)
 
             // Default to "All" being selected
-            if (category == null) {
+            if (category == selectedCategory) {
                 chip.isChecked = true
             }
 
             chip.setOnClickListener {
+                selectedCategory = category
                 val filteredItems = ItemRepository.getItems(category)
                 itemAdapter.updateItems(filteredItems)
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val recyclerView = view?.findViewById<RecyclerView>(
+            R.id.itemsRecyclerView
+        ) ?: return
+        (recyclerView.adapter as? ItemAdapter)?.updateItems(
+            ItemRepository.getItems(selectedCategory)
+        )
     }
 }

@@ -5,7 +5,9 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.isVisible
 import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
@@ -45,5 +47,21 @@ class MainActivity : AppCompatActivity() {
             findViewById<BottomNavigationView>(R.id.bottom_nav)
 
         bottomNav.setupWithNavController(navController)
+
+        bottomNav.setOnItemSelectedListener { menuItem ->
+            if (menuItem.itemId == R.id.listItemFragment) {
+                if (navController.currentDestination?.id != R.id.listItemFragment) {
+                    navController.navigate(R.id.listItemFragment)
+                }
+
+                false
+            } else {
+                NavigationUI.onNavDestinationSelected(menuItem, navController)
+            }
+        }
+
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            bottomNav.isVisible = destination.id != R.id.listItemFragment
+        }
     }
 }

@@ -19,7 +19,7 @@ import java.text.DateFormat
 import java.util.Date
 import androidx.navigation.ui.setupWithNavController
 import click.sheena.campusswap.ui.NavigationConfig
-import com.google.android.material.snackbar.Snackbar
+import click.sheena.campusswap.ui.loadItemImage
 
 class ItemDetailFragment : Fragment(R.layout.fragment_item_detail) {
 
@@ -75,7 +75,7 @@ class ItemDetailFragment : Fragment(R.layout.fragment_item_detail) {
         )
         val uploadedAt = dateFormat.format(Date(item.createdAt))
 
-        image.setImageResource(R.drawable.sample_cat)
+        image.loadItemImage(item.imagePath)
 
         title.text = item.title
         category.text = item.category.name
@@ -106,6 +106,17 @@ class ItemDetailFragment : Fragment(R.layout.fragment_item_detail) {
                 }
 
                 R.id.action_edit_item -> {
+                    item?.let { currentItem ->
+                        findNavController().navigate(
+                            R.id.listItemFragment,
+                            Bundle().apply {
+                                putString(
+                                    ListItemFragment.ARG_ITEM_ID,
+                                    currentItem.id
+                                )
+                            }
+                        )
+                    }
                     true
                 }
 
@@ -207,5 +218,26 @@ class ItemDetailFragment : Fragment(R.layout.fragment_item_detail) {
         ).show()
 
         findNavController().navigateUp()
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        val root = view ?: return
+        val itemId = arguments?.getString(ARG_ITEM_ID) ?: return
+        val latestItem = ItemRepository.getItemById(itemId)
+
+        if (latestItem == null) {
+            findNavController().popBackStack()
+            return
+        }
+
+        item = latestItem
+        bindItem(root, latestItem)
+
+        val toolbar = root.findViewById<Toolbar>(
+            R.id.detailToolbar
+        )
+        updateToolbarActions(toolbar.menu)
     }
 }

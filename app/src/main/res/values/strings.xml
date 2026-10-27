@@ -32,4 +32,21 @@
     <string name="item_added_to_favourites">Added to favourites</string>
     <string name="item_removed_from_favourites">Removed from favourites</string>
     <string name="empty_list">Empty empty…</string>
+    <string name="item_form_edit">Edit Item</string>
+    <string name="item_form_title">Title</string>
+    <string name="item_form_description">Description</string>
+    <string name="item_form_category">Category</string>
+    <string name="item_form_wanted">What would you like in exchange?</string>
+    <string name="item_form_publish">Publish</string>
+    <string name="item_form_save_changes">Save Changes</string>
+    <string name="item_form_required">This field is required</string>
+    <string name="item_form_login_required">Please log in first.</string>
+    <string name="item_form_unavailable">This item is unavailable or cannot be edited.</string>
+    <string name="item_form_save_failed">Could not save this item.</string>
+    <string name="item_form_published">Item published.</string>
+    <string name="item_form_updated">Changes saved.</string>
+    <string name="item_form_select_image">Select image</string>
+    <string name="item_form_image_copying">Uploading image…</string>
+    <string name="item_form_image_failed">Could not upload this image. Please try another.</string>
+    <string name="item_form_image_required">Please select an image before saving.</string>
 </resources>

@@ -14,6 +14,7 @@ object ItemRepository {
                 item.isAvailable() &&
                         (category == null || item.category == category)
             }
+            .sortedByDescending { it.updatedAt }
             .map { it.copy() }
     }
 
@@ -48,6 +49,7 @@ object ItemRepository {
                                         item.description.contains(query, ignoreCase = true) ||
                                         item.wantedDescription.contains(query, ignoreCase = true))
             }
+            .sortedByDescending { it.updatedAt }
             .map { it.copy() }
     }
 
@@ -62,6 +64,40 @@ object ItemRepository {
 
         val updatedItem = currentItem.updateItem(
             newStatus = ItemStatus.WITHDRAWN
+        )
+
+        items[index] = updatedItem
+        return updatedItem.copy()
+    }
+
+    fun addItem(item: Item): Item {
+        items.add(item)
+        return item
+    }
+
+    fun updateItem(
+        itemId: String,
+        userId: String,
+        title: String,
+        description: String,
+        category: ItemCategory,
+        wantedDescription: String,
+        imagePath: String
+    ): Item? {
+        val index = items.indexOfFirst { it.id == itemId }
+
+        if (index == -1) return null
+
+        val currentItem = items[index]
+
+        if (!currentItem.canBeEditedBy(userId)) return null
+
+        val updatedItem = currentItem.updateItem(
+            newTitle = title,
+            newDescription = description,
+            newCategory = category,
+            newWantedDescription = wantedDescription,
+            newImagePath = imagePath
         )
 
         items[index] = updatedItem

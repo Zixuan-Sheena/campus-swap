@@ -9,6 +9,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import click.sheena.campusswap.R
 import click.sheena.campusswap.model.Item
+import click.sheena.campusswap.ui.loadItemImage
 
 class ItemAdapter(
     private var items: List<Item>,
@@ -35,8 +36,7 @@ class ItemAdapter(
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
         val item = items[position]
 
-        val imageResource = R.drawable.sample_cat
-        holder.image.setImageResource(imageResource)
+        holder.image.loadItemImage(item.imagePath)
         holder.title.text = item.title
         holder.category.text = item.category.name
         holder.wanted.text = item.wantedDescription
@@ -51,6 +51,7 @@ class ItemAdapter(
 
     @SuppressLint("NotifyDataSetChanged")
     fun updateItems(newItems: List<Item>) {
+        if (items == newItems) return
         items = newItems
         notifyDataSetChanged()
     }

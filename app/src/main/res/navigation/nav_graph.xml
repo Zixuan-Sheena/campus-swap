@@ -18,7 +18,15 @@
     <fragment
         android:id="@+id/listItemFragment"
         android:name="click.sheena.campusswap.ui.screens.ListItemFragment"
-        android:label="@string/nav_list_item" />
+        android:label="@string/nav_list_item">
+
+        <argument
+            android:name="itemId"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="@null" />
+
+    </fragment>
 
     <fragment
         android:id="@+id/chatsFragment"

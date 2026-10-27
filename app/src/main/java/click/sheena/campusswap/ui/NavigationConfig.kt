@@ -9,7 +9,6 @@ object NavigationConfig {
         setOf(
             R.id.browseFragment,
             R.id.searchFragment,
-            R.id.listItemFragment,
             R.id.chatsFragment,
             R.id.profileFragment
         )
