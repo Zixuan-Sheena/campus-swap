@@ -34,6 +34,16 @@
         android:label="@string/nav_chats" />
 
     <fragment
+        android:id="@+id/chatDetailFragment"
+        android:name="click.sheena.campusswap.ui.screens.ChatDetailFragment"
+        android:label="@string/nav_chats">
+
+        <argument
+            android:name="conversationId"
+            app:argType="string" />
+    </fragment>
+
+    <fragment
         android:id="@+id/profileFragment"
         android:name="click.sheena.campusswap.ui.screens.ProfileFragment"
         android:label="@string/nav_profile" />

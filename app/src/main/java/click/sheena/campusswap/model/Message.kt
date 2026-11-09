@@ -4,6 +4,7 @@ import java.util.UUID
 
 enum class MessageType {
     TEXT,
+    IMAGE,
     PROPOSAL
 }
 
@@ -14,5 +15,6 @@ data class Message(
     val type: MessageType = MessageType.TEXT,
     val text: String? = null,
     val proposalId: String? = null,
-    val createdAt: Long
+    val createdAt: Long,
+    val imagePath: String? = null
 )

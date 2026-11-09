@@ -49,4 +49,19 @@
     <string name="item_form_image_copying">Uploading image…</string>
     <string name="item_form_image_failed">Could not upload this image. Please try another.</string>
     <string name="item_form_image_required">Please select an image before saving.</string>
+    <string name="chat_login_required">Select a demo user in Profile to view chats.</string>
+    <string name="chat_empty">No conversations yet.</string>
+    <string name="chat_no_messages">No messages yet.</string>
+    <string name="chat_message_hint">Write a message</string>
+    <string name="chat_send">Send</string>
+    <string name="chat_more_actions">More chat actions</string>
+    <string name="chat_close_actions">Close chat actions</string>
+    <string name="chat_send_image">Send image</string>
+    <string name="chat_create_proposal">Create proposal</string>
+    <string name="chat_image_message">Image message</string>
+    <string name="chat_image_unavailable">Image unavailable</string>
+    <string name="chat_image_send_failed">Could not send this image.</string>
+    <string name="chat_proposal_message">Proposal</string>
+    <string name="chat_proposal_not_ready">This feature is not ready yet.</string>
+
 </resources>

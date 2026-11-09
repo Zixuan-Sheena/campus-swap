@@ -1,8 +1,10 @@
 package click.sheena.campusswap.data
 
 import click.sheena.campusswap.model.Favourite
+import click.sheena.campusswap.model.Conversation
 import click.sheena.campusswap.model.Item
 import click.sheena.campusswap.model.ItemCategory
+import click.sheena.campusswap.model.Message
 import click.sheena.campusswap.model.User
 
 /**
@@ -102,6 +104,45 @@ object SampleData {
             userId = "114514",
             itemId = "1919810-1",
             createdAt = System.currentTimeMillis()
+        )
+    )
+
+    val conversations = listOf(
+        Conversation(
+            id = "conversation-alice-bob",
+            userLowId = "114514",
+            userHighId = "1919810",
+            createdAt = 1768473000000L
+        ),
+        Conversation(
+            id = "conversation-alice-david",
+            userLowId = "114514",
+            userHighId = "12345678",
+            createdAt = 1768476600000L
+        )
+    )
+
+    val messages = listOf(
+        Message(
+            id = "message-1",
+            conversationId = "conversation-alice-bob",
+            senderId = "1919810",
+            text = "Hi Alice, is the Tablet Stand still available?",
+            createdAt = 1768473060000L
+        ),
+        Message(
+            id = "message-2",
+            conversationId = "conversation-alice-bob",
+            senderId = "114514",
+            text = "Yes, it is. What book would you like to exchange?",
+            createdAt = 1768473120000L
+        ),
+        Message(
+            id = "message-3",
+            conversationId = "conversation-alice-david",
+            senderId = "12345678",
+            text = "Would you be interested in swapping for the camera lens?",
+            createdAt = 1768476660000L
         )
     )
 
