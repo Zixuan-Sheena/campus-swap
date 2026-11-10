@@ -6,6 +6,9 @@ import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.setupWithNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -18,6 +21,7 @@ import click.sheena.campusswap.ui.adapters.ItemHorizontalAdapter
 
 class MyItemsFragment : Fragment(R.layout.fragment_my_items) {
 
+    private var loadJob: Job? = null
     private var itemAdapter: ItemHorizontalAdapter? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -49,22 +53,25 @@ class MyItemsFragment : Fragment(R.layout.fragment_my_items) {
     override fun onResume() {
         super.onResume()
 
-        val user = UserSession.getCurrentUser()
+        loadJob?.cancel()
+        loadJob = viewLifecycleOwner.lifecycleScope.launch {
+            val user = UserSession.getCurrentUser()
 
-        val items = if (user == null) {
-            emptyList()
-        } else {
-            ItemRepository.getItemByOwnerId(user.id)
-                .filter { it.isAvailable() }
+            val items = if (user == null) {
+                emptyList()
+            } else {
+                ItemRepository.getItemByOwnerId(user.id)
+                    .filter { it.isAvailable() }
+            }
+
+            itemAdapter?.updateItems(items)
+
+            view?.findViewById<TextView>(R.id.emptyText)?.isVisible =
+                items.isEmpty()
+
+            view?.findViewById<RecyclerView>(R.id.myItemsRecyclerView)?.isVisible =
+                items.isNotEmpty()
         }
-
-        itemAdapter?.updateItems(items)
-
-        view?.findViewById<TextView>(R.id.emptyText)?.isVisible =
-            items.isEmpty()
-
-        view?.findViewById<RecyclerView>(R.id.myItemsRecyclerView)?.isVisible =
-            items.isNotEmpty()
     }
 
     override fun onDestroyView() {

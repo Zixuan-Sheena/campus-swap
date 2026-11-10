@@ -1,37 +1,36 @@
 package click.sheena.campusswap.data
 
+import androidx.room.withTransaction
 import click.sheena.campusswap.model.Favourite
 
 object FavouriteRepository {
-    private val favourites = SampleData.favourites.map { it.copy() }.toMutableList()
-
-    fun addFavourite(userId: String, itemId: String) {
-        if (isFavourite(userId, itemId)) return
-
-        favourites.add(
-            Favourite(
-                userId = userId,
-                itemId = itemId,
-                createdAt = System.currentTimeMillis()
-            )
+    suspend fun addFavourite(userId: String, itemId: String) {
+        CampusSwapDatabase.ready().favourites().insert(
+            Favourite(userId, itemId, System.currentTimeMillis())
         )
     }
 
-    fun removeFavourite(userId: String, itemId: String) {
-        favourites.removeAll {
-            it.userId == userId && it.itemId == itemId
-        }
+    suspend fun removeFavourite(userId: String, itemId: String) {
+        CampusSwapDatabase.ready().favourites().remove(userId, itemId)
     }
 
-    fun isFavourite(userId: String, itemId: String): Boolean {
-        return favourites.any {
-            it.userId == userId && it.itemId == itemId
-        }
-    }
+    suspend fun isFavourite(userId: String, itemId: String): Boolean =
+        CampusSwapDatabase.ready().favourites().contains(userId, itemId)
 
-    fun getFavourites(userId: String): List<Favourite> {
-        return favourites
-            .filter { it.userId == userId }
-            .sortedByDescending { it.createdAt }
+    suspend fun getFavourites(userId: String): List<Favourite> =
+        CampusSwapDatabase.ready().favourites().getForUser(userId)
+
+    suspend fun toggleFavourite(userId: String, itemId: String): Boolean {
+        val database = CampusSwapDatabase.ready()
+        val dao = database.favourites()
+        return database.withTransaction {
+            val shouldAdd = !dao.contains(userId, itemId)
+            if (shouldAdd) {
+                dao.insert(Favourite(userId, itemId, System.currentTimeMillis()))
+            } else {
+                dao.remove(userId, itemId)
+            }
+            shouldAdd
+        }
     }
 }

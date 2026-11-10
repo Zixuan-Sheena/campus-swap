@@ -8,6 +8,9 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import androidx.navigation.fragment.findNavController
 import click.sheena.campusswap.R
 import click.sheena.campusswap.data.FavouriteRepository
@@ -19,6 +22,7 @@ import java.text.DateFormat
 import java.util.Date
 import androidx.navigation.ui.setupWithNavController
 import click.sheena.campusswap.ui.NavigationConfig
+import click.sheena.campusswap.ui.displayImagePath
 import click.sheena.campusswap.ui.loadItemImage
 
 class ItemDetailFragment : Fragment(R.layout.fragment_item_detail) {
@@ -28,6 +32,8 @@ class ItemDetailFragment : Fragment(R.layout.fragment_item_detail) {
 
     }
 
+    private var loadJob: Job? = null
+    private var actionJob: Job? = null
     private var item: Item? = null
 
     override fun onViewCreated(
@@ -36,23 +42,7 @@ class ItemDetailFragment : Fragment(R.layout.fragment_item_detail) {
     ) {
         super.onViewCreated(view, savedInstanceState)
 
-        val itemId = arguments?.getString(ARG_ITEM_ID)
-
-        if (itemId == null) {
-            findNavController().navigateUp()
-            return
-        }
-
-        val loadedItem = ItemRepository.getItemById(itemId)
-
-        if (loadedItem == null) {
-            findNavController().navigateUp()
-            return
-        }
-
-        item = loadedItem
-
-        bindItem(view, loadedItem)
+        item = null
         setupToolbar(view)
     }
 
@@ -75,7 +65,7 @@ class ItemDetailFragment : Fragment(R.layout.fragment_item_detail) {
         )
         val uploadedAt = dateFormat.format(Date(item.createdAt))
 
-        image.loadItemImage(item.imagePath)
+        image.loadItemImage(item.displayImagePath())
 
         title.text = item.title
         category.text = item.category.name
@@ -95,13 +85,12 @@ class ItemDetailFragment : Fragment(R.layout.fragment_item_detail) {
             NavigationConfig.appBarConfiguration
         )
 
-        updateToolbarActions(toolbar.menu)
+        toolbar.menu.setGroupVisible(0, false)
 
         toolbar.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.action_favourite -> {
-                    toggleFavourite()
-                    updateToolbarActions(toolbar.menu)
+                    toggleFavourite(toolbar.menu)
                     true
                 }
 
@@ -121,7 +110,7 @@ class ItemDetailFragment : Fragment(R.layout.fragment_item_detail) {
                 }
 
                 R.id.action_withdraw_item -> {
-                    withdrawItem(view)
+                    withdrawItem()
                     true
                 }
 
@@ -129,7 +118,8 @@ class ItemDetailFragment : Fragment(R.layout.fragment_item_detail) {
             }
         }
     }
-    private fun updateToolbarActions(menu: Menu) {
+
+    private suspend fun updateToolbarActions(menu: Menu) {
         val currentItem = item ?: return
         val currentUser = UserSession.getCurrentUser()
 
@@ -139,48 +129,36 @@ class ItemDetailFragment : Fragment(R.layout.fragment_item_detail) {
 
         val isOwner = currentUser?.id == currentItem.ownerId
 
+        if (currentUser != null && !isOwner) {
+            val isFavourite = FavouriteRepository.isFavourite(currentUser.id, currentItem.id)
+            updateFavouriteIcon(menu, isFavourite)
+        }
+
         favouriteAction.isVisible = currentUser != null && !isOwner
         val canEdit = isOwner && currentItem.isAvailable()
         editAction.isVisible = canEdit
         withdrawAction.isVisible = canEdit
-
-        if (currentUser != null && !isOwner) {
-            updateFavouriteIcon(menu, currentUser.id)
-        }
     }
 
-    private fun toggleFavourite() {
+    private fun toggleFavourite(menu: Menu) {
         val currentItem = item ?: return
         val currentUserId = UserSession.getCurrentUser()?.id ?: return
+        if (actionJob?.isActive == true) return
 
-        val messageRes = if (
-            FavouriteRepository.isFavourite(currentUserId, currentItem.id)
-        ) {
-            FavouriteRepository.removeFavourite(currentUserId, currentItem.id)
-            R.string.item_removed_from_favourites
-        } else {
-            FavouriteRepository.addFavourite(currentUserId, currentItem.id)
-            R.string.item_added_to_favourites
+        actionJob = viewLifecycleOwner.lifecycleScope.launch {
+            val isFavourite = FavouriteRepository.toggleFavourite(currentUserId, currentItem.id)
+            updateFavouriteIcon(menu, isFavourite)
+            val messageRes = if (isFavourite) {
+                R.string.item_added_to_favourites
+            } else {
+                R.string.item_removed_from_favourites
+            }
+            Toast.makeText(requireContext(), messageRes, Toast.LENGTH_SHORT).show()
         }
-
-        Toast.makeText(
-            requireContext(),
-            messageRes,
-            Toast.LENGTH_SHORT
-        ).show()
     }
 
-    private fun updateFavouriteIcon(
-        menu: Menu,
-        currentUserId: String
-    ) {
-        val currentItem = item ?: return
+    private fun updateFavouriteIcon(menu: Menu, isFavourite: Boolean) {
         val favouriteItem = menu.findItem(R.id.action_favourite)
-
-        val isFavourite = FavouriteRepository.isFavourite(
-            currentUserId,
-            currentItem.id
-        )
 
         if (isFavourite) {
             favouriteItem.setIcon(R.drawable.ic_favorite)
@@ -191,53 +169,64 @@ class ItemDetailFragment : Fragment(R.layout.fragment_item_detail) {
         }
     }
 
-    private fun withdrawItem(view: View) {
+    private fun withdrawItem() {
         val currentItem = item ?: return
         val currentUserId = UserSession.getCurrentUser()?.id ?: return
 
-        val updatedItem = ItemRepository.withdrawItem(
-            itemId = currentItem.id,
-            userId = currentUserId
-        )
+        if (actionJob?.isActive == true) return
 
-        if (updatedItem == null) {
+        actionJob = viewLifecycleOwner.lifecycleScope.launch {
+            val updatedItem = ItemRepository.withdrawItem(
+                itemId = currentItem.id,
+                userId = currentUserId
+            )
+
+            if (updatedItem == null) {
+                Toast.makeText(
+                    requireContext(),
+                    R.string.item_withdraw_failed,
+                    Toast.LENGTH_SHORT
+                ).show()
+                return@launch
+            }
+
+            item = updatedItem
+
             Toast.makeText(
                 requireContext(),
-                R.string.item_withdraw_failed,
+                R.string.item_withdrawn,
                 Toast.LENGTH_SHORT
             ).show()
-            return
+
+            findNavController().navigateUp()
         }
-
-        item = updatedItem
-
-        Toast.makeText(
-            requireContext(),
-            R.string.item_withdrawn,
-            Toast.LENGTH_SHORT
-        ).show()
-
-        findNavController().navigateUp()
     }
 
     override fun onResume() {
         super.onResume()
 
         val root = view ?: return
-        val itemId = arguments?.getString(ARG_ITEM_ID) ?: return
-        val latestItem = ItemRepository.getItemById(itemId)
-
-        if (latestItem == null) {
-            findNavController().popBackStack()
+        val itemId = arguments?.getString(ARG_ITEM_ID)
+        if (itemId == null) {
+            findNavController().navigateUp()
             return
         }
+        loadJob?.cancel()
+        loadJob = viewLifecycleOwner.lifecycleScope.launch {
+            val latestItem = ItemRepository.getItemById(itemId)
 
-        item = latestItem
-        bindItem(root, latestItem)
+            if (latestItem == null) {
+                findNavController().popBackStack()
+                return@launch
+            }
 
-        val toolbar = root.findViewById<Toolbar>(
-            R.id.detailToolbar
-        )
-        updateToolbarActions(toolbar.menu)
+            item = latestItem
+            bindItem(root, latestItem)
+
+            val toolbar = root.findViewById<Toolbar>(
+                R.id.detailToolbar
+            )
+            updateToolbarActions(toolbar.menu)
+        }
     }
 }

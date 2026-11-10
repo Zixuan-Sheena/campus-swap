@@ -8,7 +8,7 @@ import org.junit.Test
 class ItemTest {
     @Test
     fun createAndEditItem() {
-        val testUserId: Long = 114514
+        val testUserId = "114514"
         val item = Item(
             ownerId = testUserId,
             title = "Test Item",
@@ -27,10 +27,10 @@ class ItemTest {
         // Check updated values
         assertEquals("This is an updated test item.", updatedItem.description)
         assertEquals(ItemStatus.RESERVED, updatedItem.status)
-        assertEquals(1, updatedItem.revision)
+        assertEquals(item.revision + 1, updatedItem.revision)
         assertFalse(updatedItem.isAvailable())
-        assertTrue(updatedItem.isOwnedBy(114514)) // Same user
-        assertFalse(updatedItem.canBeEditedBy(123456)) // Different user
+        assertTrue(updatedItem.isOwnedBy(testUserId))
+        assertFalse(item.canBeEditedBy("123456"))
 
         print(updatedItem)
     }

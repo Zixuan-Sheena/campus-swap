@@ -27,6 +27,8 @@ import android.widget.ImageView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.lifecycleScope
 import click.sheena.campusswap.data.ItemImageStorage
+import click.sheena.campusswap.ui.bundledItemImage
+import click.sheena.campusswap.ui.displayImagePath
 import click.sheena.campusswap.ui.loadItemImage
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -44,6 +46,7 @@ class ListItemFragment : Fragment(R.layout.fragment_list_item) {
 
     private var selectedImagePath = ""
     private var isCopyingImage = false
+    private var isSaving = false
 
     private val imagePicker = registerForActivityResult(
         ActivityResultContracts.GetContent()
@@ -88,7 +91,7 @@ class ListItemFragment : Fragment(R.layout.fragment_list_item) {
         root.findViewById<Button>(
             R.id.selectItemImageButton
         ).apply {
-            isEnabled = !isCopyingImage
+            isEnabled = !isCopyingImage && !isSaving
 
             setText(
                 if (isCopyingImage) {
@@ -101,7 +104,7 @@ class ListItemFragment : Fragment(R.layout.fragment_list_item) {
 
         root.findViewById<Button>(
             R.id.saveItemButton
-        ).isEnabled = !isCopyingImage
+        ).isEnabled = !isCopyingImage && !isSaving
     }
 
     override fun onViewCreated(
@@ -196,49 +199,58 @@ class ListItemFragment : Fragment(R.layout.fragment_list_item) {
 
         val formUserId = currentUser.id
 
-        val existingItem = if (itemId != null) {
-            ItemRepository.getItemById(itemId)
-        } else {
-            null
-        }
+        saveButton.isEnabled = false
+        selectImageButton.isEnabled = false
+        viewLifecycleOwner.lifecycleScope.launch {
+            val existingItem = if (itemId != null) {
+                try {
+                    ItemRepository.getItemById(itemId)
+                } catch (exception: CancellationException) {
+                    throw exception
+                } catch (_: android.database.sqlite.SQLiteException) {
+                    null
+                }
+            } else {
+                null
+            }
 
-        if (
-            isEditing &&
-            (existingItem == null ||
-                    !existingItem.canBeEditedBy(formUserId))
-        ) {
-            showMessage(R.string.item_form_unavailable)
-            findNavController().popBackStack()
-            return
-        }
+            if (
+                isEditing &&
+                (existingItem == null ||
+                        !existingItem.canBeEditedBy(formUserId))
+            ) {
+                showMessage(R.string.item_form_unavailable)
+                findNavController().popBackStack()
+                return@launch
+            }
 
-        selectedImagePath = existingItem?.imagePath.orEmpty()
+            selectedImagePath = existingItem?.displayImagePath().orEmpty()
 
-        if (existingItem != null) {
-            titleInput.setText(existingItem.title)
-            descriptionInput.setText(existingItem.description)
-            wantedInput.setText(existingItem.wantedDescription)
+            if (existingItem != null) {
+                titleInput.setText(existingItem.title)
+                descriptionInput.setText(existingItem.description)
+                wantedInput.setText(existingItem.wantedDescription)
 
-            categorySpinner.setSelection(
-                categories.indexOf(existingItem.category)
-                    .coerceAtLeast(0)
-            )
-        }
+                categorySpinner.setSelection(
+                    categories.indexOf(existingItem.category)
+                        .coerceAtLeast(0)
+                )
+            }
 
-        imagePreview.isVisible = selectedImagePath.isNotBlank() &&
-            File(selectedImagePath).isFile
-        if (imagePreview.isVisible) {
-            imagePreview.loadItemImage(selectedImagePath, fallbackRes = 0)
+            imagePreview.isVisible = hasSelectedImage()
+            if (imagePreview.isVisible) {
+                imagePreview.loadItemImage(selectedImagePath, fallbackRes = 0)
+            }
+
+            updateImageButtons()
         }
 
         selectImageButton.setOnClickListener {
             imagePicker.launch("image/*")
         }
 
-        updateImageButtons()
-
         saveButton.setOnClickListener {
-            if (isCopyingImage) {
+            if (isCopyingImage || isSaving) {
                 return@setOnClickListener
             }
 
@@ -261,10 +273,7 @@ class ListItemFragment : Fragment(R.layout.fragment_list_item) {
                 return@setOnClickListener
             }
 
-            if (
-                selectedImagePath.isBlank() ||
-                !File(selectedImagePath).isFile
-            ) {
+            if (!hasSelectedImage()) {
                 showMessage(R.string.item_form_image_required)
                 selectImageButton.requestFocus()
                 return@setOnClickListener
@@ -282,45 +291,61 @@ class ListItemFragment : Fragment(R.layout.fragment_list_item) {
                 categorySpinner.selectedItemPosition
             ]
 
-            val savedItem = if (itemId == null) {
-                ItemRepository.addItem(
-                    Item(
-                        ownerId = user.id,
-                        title = title,
-                        description = description,
-                        category = category,
-                        wantedDescription = wantedDescription,
-                        imagePath = imagePath
-                    )
-                )
-            } else {
-                ItemRepository.updateItem(
-                    itemId = itemId,
-                    userId = user.id,
-                    title = title,
-                    description = description,
-                    category = category,
-                    wantedDescription = wantedDescription,
-                    imagePath = imagePath
-                )
-            }
-
-            if (savedItem == null) {
-                showMessage(R.string.item_form_save_failed)
-                return@setOnClickListener
-            }
-
-            showMessage(
-                if (isEditing) {
-                    R.string.item_form_updated
-                } else {
-                    R.string.item_form_published
+            isSaving = true
+            updateImageButtons()
+            viewLifecycleOwner.lifecycleScope.launch {
+                val savedItem = try {
+                    if (itemId == null) {
+                        ItemRepository.addItem(
+                            Item(
+                                ownerId = user.id,
+                                title = title,
+                                description = description,
+                                category = category,
+                                wantedDescription = wantedDescription,
+                                imagePath = imagePath
+                            )
+                        )
+                    } else {
+                        ItemRepository.updateItem(
+                            itemId = itemId,
+                            userId = user.id,
+                            title = title,
+                            description = description,
+                            category = category,
+                            wantedDescription = wantedDescription,
+                            imagePath = imagePath
+                        )
+                    }
+                } catch (exception: CancellationException) {
+                    throw exception
+                } catch (_: Exception) {
+                    null
+                } finally {
+                    isSaving = false
+                    updateImageButtons()
                 }
-            )
 
-            findNavController().popBackStack()
+                if (savedItem == null) {
+                    showMessage(R.string.item_form_save_failed)
+                    return@launch
+                }
+
+                showMessage(
+                    if (isEditing) {
+                        R.string.item_form_updated
+                    } else {
+                        R.string.item_form_published
+                    }
+                )
+
+                findNavController().popBackStack()
+            }
         }
     }
+
+    private fun hasSelectedImage(): Boolean =
+        bundledItemImage(selectedImagePath) != null || File(selectedImagePath).isFile
 
     private fun validateRequired(input: EditText): Boolean {
         if (input.text.toString().isBlank()) {

@@ -8,6 +8,8 @@ import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import click.sheena.campusswap.R
 import click.sheena.campusswap.data.ItemImageStorage
+import click.sheena.campusswap.data.SampleData
+import click.sheena.campusswap.model.Item
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -19,6 +21,20 @@ private val imageCache = object : LruCache<String, Bitmap>(
     override fun sizeOf(key: String, value: Bitmap): Int = value.byteCount
 }
 
+fun Item.displayImagePath(): String = imagePath.ifBlank {
+    SampleData.items.firstOrNull { it.id == id }?.imagePath.orEmpty()
+}
+
+fun bundledItemImage(imagePath: String): Int? = when (imagePath) {
+    "sample:breakfast" -> R.drawable.sample_breakfast
+    "sample:tablet_stand" -> R.drawable.sample_tablet_stand
+    "sample:cat" -> R.drawable.sample_cat
+    "sample:bottle" -> R.drawable.sample_bottle
+    "sample:camera_lens" -> R.drawable.sample_camera_lens
+    "sample:movie_night" -> R.drawable.sample_movie_night
+    else -> null
+}
+
 fun ImageView.loadItemImage(
     imagePath: String,
     fallbackRes: Int = R.drawable.sample_cat
@@ -26,8 +42,9 @@ fun ImageView.loadItemImage(
     val request = Any()
     setTag(R.id.item_image_request, request)
 
-    if (imagePath.isBlank()) {
-        setImageResource(fallbackRes)
+    val bundledImage = bundledItemImage(imagePath)
+    if (bundledImage != null || imagePath.isBlank()) {
+        setImageResource(bundledImage ?: fallbackRes)
         return
     }
 

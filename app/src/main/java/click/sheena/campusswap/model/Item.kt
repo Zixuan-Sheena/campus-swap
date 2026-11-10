@@ -1,6 +1,8 @@
 package click.sheena.campusswap.model
 
 import java.util.UUID
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 
 enum class ItemStatus {
     AVAILABLE,  // Item is available for exchange
@@ -21,8 +23,9 @@ enum class ItemCategory {
     OTHER
 }
 
+@Entity(tableName = "items")
 data class Item(
-    val id: String = UUID.randomUUID().toString(),
+    @PrimaryKey val id: String = UUID.randomUUID().toString(),
     val ownerId: String,
     var title: String,
     val description: String,

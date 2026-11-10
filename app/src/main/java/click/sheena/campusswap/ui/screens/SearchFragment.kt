@@ -10,6 +10,9 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -52,7 +55,10 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
         }
         showItems(emptyList())
 
+        var searchJob: Job? = null
+
         fun performSearch() {
+            searchJob?.cancel()
             searchKeyword = searchInput.text.toString().trim()
             hasSearched = searchKeyword.isNotBlank()
 
@@ -61,20 +67,22 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
                 return
             }
 
-            val results = ItemRepository.searchItems(
-                category = selectedCategory,
-                keyword = searchKeyword
-            )
+            searchJob = viewLifecycleOwner.lifecycleScope.launch {
+                val results = ItemRepository.searchItems(
+                    category = selectedCategory,
+                    keyword = searchKeyword
+                )
 
-            showItems(results)
+                showItems(results)
 
-            val message = if (results.size == 1) {
-                "1 result"
-            } else {
-                "${results.size} results"
+                val message = if (results.size == 1) {
+                    "1 result"
+                } else {
+                    "${results.size} results"
+                }
+
+                Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
             }
-
-            Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
         }
 
         val categories: List<ItemCategory?> =
@@ -114,12 +122,14 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
             ?: getString(R.string.search_category)
 
         if (hasSearched) {
-            showItems(
-                ItemRepository.searchItems(
-                    category = selectedCategory,
-                    keyword = searchKeyword
+            searchJob = viewLifecycleOwner.lifecycleScope.launch {
+                showItems(
+                    ItemRepository.searchItems(
+                        category = selectedCategory,
+                        keyword = searchKeyword
+                    )
                 )
-            )
+            }
         }
     }
 }

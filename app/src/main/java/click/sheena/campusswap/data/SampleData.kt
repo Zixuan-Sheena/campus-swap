@@ -7,10 +7,6 @@ import click.sheena.campusswap.model.ItemCategory
 import click.sheena.campusswap.model.Message
 import click.sheena.campusswap.model.User
 
-/**
- * Read-only Sample data for testing and demonstration purposes.
- * The data will be retrieved by Item/User/FavouriteRepository and be modified in memory, but will not be persisted.
- */
 object SampleData {
     val items = listOf(
         Item(
@@ -20,7 +16,7 @@ object SampleData {
             description = "Tasty, good for breakfast. Exchange with a coffee or a donut, or a croissant, or a bagel, or a muffin, or a scone, or a pancake, or a waffle, or a crepe, or a tart, or a pie, or a cake, or a cookie, or a brownie, or a bar.",
             category = ItemCategory.FOOD,
             wantedDescription = "Looking for snacks or drinks.",
-            imagePath = "",
+            imagePath = "sample:breakfast",
             createdAt = 1768473000000L
         ),
         Item(
@@ -30,7 +26,7 @@ object SampleData {
             description = "Used for holding tablets, in good condition.",
             category = ItemCategory.SPORTS,
             wantedDescription = "Any novel or book, for example, a brief history of time, or a biography of a famous person, or a self-help book, or a cookbook, or a travel guide, or a dictionary, or an encyclopedia, or a thesaurus, or a manual, or a textbook, or a workbook, or a journal, or a diary.",
-            imagePath = "",
+            imagePath = "sample:tablet_stand",
             createdAt = 1779281100000L,
             updatedAt = 1779281100000L
         ),
@@ -41,7 +37,7 @@ object SampleData {
             description = "Cute, but damaging furniture. Needs a home.",
             category = ItemCategory.OTHER,
             wantedDescription = "Looking for a dog or a hamster.",
-            imagePath = "",
+            imagePath = "sample:cat",
             createdAt = 1786178400000L,
             updatedAt = 1786178400000L
         ),
@@ -52,7 +48,7 @@ object SampleData {
             description = "Too sweet, need to exchange for something more bitter.",
             category = ItemCategory.FOOD,
             wantedDescription = "Looking for other alcoholic beverages, such as wine, beer, or spirits.",
-            imagePath = "",
+            imagePath = "sample:bottle",
             createdAt = 1792254900000L,
             updatedAt = 1792254900000L
         ),
@@ -63,7 +59,7 @@ object SampleData {
             description = "A classic lens for Canon FD mount cameras. Great for portraits and low-light photography.",
             category = ItemCategory.ELECTRONICS,
             wantedDescription = "Looking for a new camera or other photography equipment.",
-            imagePath = "",
+            imagePath = "sample:camera_lens",
             createdAt = 1768473000000L,
             updatedAt = 1768473000000L
         ),
@@ -74,7 +70,7 @@ object SampleData {
             description = "I'll exchange my time and company for your time and company :)",
             category = ItemCategory.OTHER,
             wantedDescription = "Looking for a friend to watch Resident Evil together.",
-            imagePath = "",
+            imagePath = "sample:movie_night",
             createdAt = 1768473000000L,
             updatedAt = 1768473000000L
         )

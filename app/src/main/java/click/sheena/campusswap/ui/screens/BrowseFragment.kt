@@ -3,6 +3,9 @@ package click.sheena.campusswap.ui.screens
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import click.sheena.campusswap.R
@@ -14,6 +17,7 @@ import click.sheena.campusswap.model.ItemCategory
 import androidx.navigation.fragment.findNavController
 
 class BrowseFragment : Fragment(R.layout.fragment_browse) {
+    private var loadJob: Job? = null
     private var selectedCategory: ItemCategory? = null
 
     override fun onViewCreated(
@@ -32,7 +36,7 @@ class BrowseFragment : Fragment(R.layout.fragment_browse) {
             )
 
         val itemAdapter = ItemAdapter(
-            items = ItemRepository.getItems(selectedCategory)
+            items = emptyList()
         ) { item ->
             findNavController().navigate(
                 R.id.itemDetailFragment,
@@ -65,8 +69,7 @@ class BrowseFragment : Fragment(R.layout.fragment_browse) {
 
             chip.setOnClickListener {
                 selectedCategory = category
-                val filteredItems = ItemRepository.getItems(category)
-                itemAdapter.updateItems(filteredItems)
+                loadItems(itemAdapter)
             }
         }
     }
@@ -76,8 +79,15 @@ class BrowseFragment : Fragment(R.layout.fragment_browse) {
         val recyclerView = view?.findViewById<RecyclerView>(
             R.id.itemsRecyclerView
         ) ?: return
-        (recyclerView.adapter as? ItemAdapter)?.updateItems(
-            ItemRepository.getItems(selectedCategory)
-        )
+        val adapter = recyclerView.adapter as? ItemAdapter ?: return
+        loadItems(adapter)
+    }
+
+    private fun loadItems(adapter: ItemAdapter) {
+        val category = selectedCategory
+        loadJob?.cancel()
+        loadJob = viewLifecycleOwner.lifecycleScope.launch {
+            adapter.updateItems(ItemRepository.getItems(category))
+        }
     }
 }

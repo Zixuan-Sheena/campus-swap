@@ -9,6 +9,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import click.sheena.campusswap.R
 import click.sheena.campusswap.model.Item
+import click.sheena.campusswap.ui.displayImagePath
 import click.sheena.campusswap.ui.loadItemImage
 
 class ItemAdapter(
@@ -36,7 +37,7 @@ class ItemAdapter(
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
         val item = items[position]
 
-        holder.image.loadItemImage(item.imagePath)
+        holder.image.loadItemImage(item.displayImagePath())
         holder.title.text = item.title
         holder.category.text = item.category.name
         holder.wanted.text = item.wantedDescription
