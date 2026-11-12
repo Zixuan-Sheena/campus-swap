@@ -116,10 +116,10 @@ interface ProposalDao {
 
     @Query("""
         UPDATE proposals SET status = 'INVALIDATED'
-        WHERE status = 'PENDING' AND id != :acceptedProposalId
+        WHERE status = 'PENDING' AND (:acceptedProposalId IS NULL OR id != :acceptedProposalId)
         AND id IN (SELECT proposalId FROM proposal_items WHERE itemId IN (:itemIds))
     """)
-    suspend fun invalidateForItems(itemIds: List<String>, acceptedProposalId: String)
+    suspend fun invalidateForItems(itemIds: List<String>, acceptedProposalId: String? = null)
 
     @Insert
     suspend fun insert(value: Proposal)
@@ -130,6 +130,14 @@ interface ProposalDao {
 
 @Dao
 interface ProposalItemDao {
+    @Query("""
+        SELECT items.* FROM items
+        INNER JOIN proposal_items ON proposal_items.itemId = items.id
+        WHERE proposal_items.proposalId = :proposalId
+        ORDER BY proposal_items.rowid
+    """)
+    suspend fun getCurrentItems(proposalId: String): List<Item>
+
     @Query("SELECT * FROM proposal_items WHERE proposalId = :proposalId")
     suspend fun getForProposal(proposalId: String): List<ProposalItem>
 

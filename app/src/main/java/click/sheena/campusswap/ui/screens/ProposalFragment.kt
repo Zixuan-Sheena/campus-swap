@@ -15,9 +15,10 @@ import click.sheena.campusswap.data.ProposalRepository
 import click.sheena.campusswap.data.UserRepository
 import click.sheena.campusswap.data.UserSession
 import click.sheena.campusswap.model.Proposal
-import click.sheena.campusswap.model.ProposalItem
+import click.sheena.campusswap.model.Item
 import click.sheena.campusswap.model.ProposalStatus
 import click.sheena.campusswap.ui.ProposalImage
+import click.sheena.campusswap.ui.displayImagePath
 import click.sheena.campusswap.ui.showProposalImages
 import click.sheena.campusswap.ui.proposalLabel
 import com.google.android.material.button.MaterialButton
@@ -50,9 +51,9 @@ class ProposalFragment : Fragment(R.layout.fragment_proposal) {
             view.findViewById<TextView>(R.id.proposalOtherLabel).text =
                 getString(R.string.proposal_other_gives, otherName)
 
-            val items = ProposalRepository.getItems(proposalId)
-            showItems(view.findViewById(R.id.proposalOtherItems), items.filter { it.ownerIdSnapshot == otherId })
-            showItems(view.findViewById(R.id.proposalYourItems), items.filter { it.ownerIdSnapshot == userId })
+            val items = ProposalRepository.getCurrentItems(proposalId)
+            showItems(view.findViewById(R.id.proposalOtherItems), items.filter { it.ownerId == otherId })
+            showItems(view.findViewById(R.id.proposalYourItems), items.filter { it.ownerId == userId })
 
             val date = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT)
                 .format(Date(proposal.meetingAt))
@@ -62,8 +63,8 @@ class ProposalFragment : Fragment(R.layout.fragment_proposal) {
         }
     }
 
-    private fun showItems(grid: GridLayout, items: List<ProposalItem>) {
-        grid.showProposalImages(items.map { ProposalImage(it.itemId, it.titleSnapshot, it.imagePathSnapshot) }) { itemId ->
+    private fun showItems(grid: GridLayout, items: List<Item>) {
+        grid.showProposalImages(items.map { ProposalImage(it.id, it.title, it.displayImagePath(), it.status) }) { itemId ->
             findNavController().navigate(
                 R.id.itemDetailFragment,
                 Bundle().apply { putString(ItemDetailFragment.ARG_ITEM_ID, itemId) }
@@ -73,6 +74,7 @@ class ProposalFragment : Fragment(R.layout.fragment_proposal) {
 
     private fun showActions(view: View, proposal: Proposal, userId: String) {
         view.findViewById<TextView>(R.id.proposalStatus).text = requireContext().proposalLabel(proposal.status)
+        view.findViewById<View>(R.id.proposalInvalidReason).isVisible = proposal.status == ProposalStatus.INVALIDATED
         val isPending = proposal.status == ProposalStatus.PENDING
         val canResend = proposal.status == ProposalStatus.REJECTED && userId == proposal.proposerId
         view.findViewById<View>(R.id.proposalActions).isVisible = isPending || canResend

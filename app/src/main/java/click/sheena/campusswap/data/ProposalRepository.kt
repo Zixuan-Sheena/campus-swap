@@ -19,6 +19,9 @@ object ProposalRepository {
     suspend fun getItems(proposalId: String): List<ProposalItem> =
         CampusSwapDatabase.ready().proposalItems().getForProposal(proposalId)
 
+    suspend fun getCurrentItems(proposalId: String): List<Item> =
+        CampusSwapDatabase.ready().proposalItems().getCurrentItems(proposalId)
+
     suspend fun getPending(conversationId: String): Proposal? =
         CampusSwapDatabase.ready().proposals().getPending(conversationId)
 

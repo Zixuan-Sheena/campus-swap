@@ -32,6 +32,15 @@
                 android:textStyle="bold" />
 
             <TextView
+                android:id="@+id/proposalInvalidReason"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/proposal_invalid_reason"
+                android:textSize="14sp"
+                android:visibility="gone" />
+
+            <TextView
                 android:id="@+id/proposalOtherLabel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

@@ -137,8 +137,7 @@ class ProposalEditFragment : Fragment(R.layout.fragment_proposal) {
         }
         previousProposalId = proposal?.id
         if (proposal != null) {
-            val ids = ProposalRepository.getItems(proposal.id).map { it.itemId }
-            val items = ItemRepository.getItemsByIds(ids).filter { it.isAvailable() }
+            val items = ProposalRepository.getCurrentItems(proposal.id).filter { it.isAvailable() }
             ownItems = items.filter { it.ownerId == userId }
             otherItems = items.filter { it.ownerId == otherUserId }
         }
@@ -213,7 +212,7 @@ class ProposalEditFragment : Fragment(R.layout.fragment_proposal) {
     private fun showItems(view: View) {
         fun show(gridId: Int, items: List<Item>) {
             view.findViewById<GridLayout>(gridId).showProposalImages(
-                items.map { ProposalImage(it.id, it.title, it.displayImagePath()) }
+                items.map { ProposalImage(it.id, it.title, it.displayImagePath(), it.status) }
             ) { itemId ->
                 findNavController().navigate(
                     R.id.itemDetailFragment,

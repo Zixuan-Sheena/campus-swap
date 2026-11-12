@@ -70,7 +70,7 @@
     <string name="proposal_withdrawn">Withdrawn</string>
     <string name="proposal_accepted">Accepted</string>
     <string name="proposal_superseded">Superseded</string>
-    <string name="proposal_invalidated">Invalidated</string>
+    <string name="proposal_invalidated">Invalid</string>
     <string name="proposal_other_gives">%1$s gives:</string>
     <string name="proposal_you_give">You give:</string>
     <string name="proposal_meeting">Date and time: %1$s</string>
@@ -97,4 +97,8 @@
     <string name="proposal_sent">Proposal sent.</string>
     <string name="proposal_send_failed">Could not send this proposal. Please try again.</string>
     <string name="proposal_start_exchange">Propose exchange</string>
+    <string name="proposal_invalid_reason">One or more items have been modified or withdrawn since this proposal was created.</string>
+    <string name="proposal_item_reserved">Reserved</string>
+    <string name="proposal_item_exchanged">Exchanged</string>
+    <string name="proposal_item_withdrawn">Withdrawn</string>
 </resources>

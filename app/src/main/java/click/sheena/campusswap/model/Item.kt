@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 
 enum class ItemStatus {
     AVAILABLE,  // Item is available for exchange
-    RESERVED,   // Item is currently in a Proposal, not available for exchange, hidden from search and user profile
+    RESERVED,
     EXCHANGED,  // Item has been exchanged, hidden from search and user profile
     WITHDRAWN   // Item has been withdrawn by the owner, hidden from search and user profile
 }
@@ -51,16 +51,16 @@ data class Item(
         newImagePath: String = this.imagePath,
         newStatus: ItemStatus = this.status
     ): Item {
-        return this.copy(
+        val updated = copy(
             title = newTitle,
             description = newDescription,
             category = newCategory,
             wantedDescription = newWantedDescription,
             imagePath = newImagePath,
-            status = newStatus,
-            revision = this.revision + 1,
-            updatedAt = System.currentTimeMillis()
+            status = newStatus
         )
+        if (updated == this) return this
+        return updated.copy(revision = revision + 1, updatedAt = System.currentTimeMillis())
     }
 
     fun isOwnedBy(userId: String): Boolean {

@@ -63,7 +63,7 @@ class ProposalSendingTest {
     }
 
     @Test
-    fun sendsMessageAndSnapshotsWithoutReservingItems() = runBlocking {
+    fun sendsMessageAndReadsLatestItemsWithoutReservingThem() = runBlocking {
         val proposal = send()
         assertEquals(1, proposal.version)
         assertEquals("V94 T9PX", proposal.eircode)
@@ -72,10 +72,13 @@ class ProposalSendingTest {
         val message = database.messages().getForConversation(proposal.conversationId).single()
         assertEquals(MessageType.PROPOSAL, message.type)
         assertEquals(proposal.id, message.proposalId)
-        val snapshot = database.proposalItems().getForProposal(proposal.id).first { it.itemId == aliceItem.id }
-        database.items().update(aliceItem.updateItem(newTitle = "Changed later"))
-        assertEquals(aliceItem.title, snapshot.titleSnapshot)
-        assertEquals(aliceItem.title, database.proposalItems().getForProposal(proposal.id).first { it.itemId == aliceItem.id }.titleSnapshot)
+        ItemRepository.changeOwnedItem(database, aliceItem.id, aliceItem.ownerId) {
+            it.updateItem(newTitle = "Changed later", newImagePath = "sample:camera_lens")
+        }
+        val latest = database.proposalItems().getCurrentItems(proposal.id).first { it.id == aliceItem.id }
+        assertEquals("Changed later", latest.title)
+        assertEquals("sample:camera_lens", latest.imagePath)
+        assertEquals(ProposalStatus.INVALIDATED, database.proposals().getById(proposal.id)?.status)
         assertEquals(ItemStatus.AVAILABLE, database.items().getById(bobItem.id)?.status)
     }
 
@@ -162,4 +165,99 @@ class ProposalSendingTest {
             assertEquals(2, it.getInt(0))
         }
     }
+
+    @Test
+    fun editingInvalidatesAllRelatedPendingProposalsOnly() = runBlocking {
+        val first = send()
+        val davidItem = SampleData.items.first { it.ownerId == "12345678" }
+        database.items().insert(davidItem)
+        val related = ProposalRepository.send(
+            database, aliceItem.ownerId, davidItem.ownerId,
+            listOf(aliceItem), listOf(davidItem), futureTime, "V94 T9PX"
+        )
+        val unrelated = ProposalRepository.send(
+            database, bobItem.ownerId, davidItem.ownerId,
+            listOf(bobItem), listOf(davidItem), futureTime, "V94 T9PX"
+        )
+        val historical = ProposalStatus.entries.filter { it != ProposalStatus.PENDING }.mapIndexed { index, status ->
+            first.copy(id = "history-$status", version = index + 2, status = status).also { proposal ->
+                database.proposals().insert(proposal)
+                database.proposalItems().insertAll(
+                    database.proposalItems().getForProposal(first.id).map { it.copy(proposalId = proposal.id) }
+                )
+            }
+        }
+        ItemRepository.changeOwnedItem(database, aliceItem.id, aliceItem.ownerId) {
+            it.updateItem(newDescription = "Updated description")
+        }
+        assertEquals(ProposalStatus.INVALIDATED, database.proposals().getById(first.id)?.status)
+        assertEquals(ProposalStatus.INVALIDATED, database.proposals().getById(related.id)?.status)
+        assertEquals(ProposalStatus.PENDING, database.proposals().getById(unrelated.id)?.status)
+        historical.forEach { assertEquals(it.status, database.proposals().getById(it.id)?.status) }
+    }
+
+    @Test
+    fun withdrawnItemRemainsVisibleInInvalidProposal() = runBlocking {
+        val proposal = send()
+        ItemRepository.changeOwnedItem(database, aliceItem.id, aliceItem.ownerId) {
+            it.updateItem(newStatus = ItemStatus.WITHDRAWN)
+        }
+        assertEquals(ProposalStatus.INVALIDATED, database.proposals().getById(proposal.id)?.status)
+        val currentItems = database.proposalItems().getCurrentItems(proposal.id)
+        assertEquals(2, currentItems.size)
+        assertEquals(ItemStatus.WITHDRAWN, currentItems.first { it.id == aliceItem.id }.status)
+    }
+
+    @Test
+    fun savingUnchangedItemDoesNotInvalidateProposal() = runBlocking {
+        val proposal = send()
+        val saved = ItemRepository.changeOwnedItem(database, aliceItem.id, aliceItem.ownerId) { it.updateItem() }
+        assertEquals(aliceItem, saved)
+        assertEquals(ProposalStatus.PENDING, database.proposals().getById(proposal.id)?.status)
+    }
+
+    @Test
+    fun reservedItemCannotBeEditedOrWithdrawn() = runBlocking {
+        val proposal = send()
+        database.proposals().updateStatus(proposal.id, ProposalStatus.ACCEPTED)
+        database.items().updateStatus(listOf(aliceItem.id), ItemStatus.RESERVED, System.currentTimeMillis())
+        assertNull(ItemRepository.changeOwnedItem(database, aliceItem.id, aliceItem.ownerId) {
+            it.updateItem(newTitle = "Not allowed")
+        })
+        assertNull(ItemRepository.changeOwnedItem(database, aliceItem.id, aliceItem.ownerId) {
+            it.updateItem(newStatus = ItemStatus.WITHDRAWN)
+        })
+        assertEquals(ItemStatus.RESERVED, database.items().getById(aliceItem.id)?.status)
+        assertEquals(aliceItem.title, database.items().getById(aliceItem.id)?.title)
+        assertEquals(ProposalStatus.ACCEPTED, database.proposals().getById(proposal.id)?.status)
+    }
+
+    @Test
+    fun otherUserCannotEditItemOrInvalidateProposal() = runBlocking {
+        val proposal = send()
+        assertNull(ItemRepository.changeOwnedItem(database, aliceItem.id, bobItem.ownerId) {
+            it.updateItem(newTitle = "Not allowed")
+        })
+        assertEquals(ProposalStatus.PENDING, database.proposals().getById(proposal.id)?.status)
+    }
+
+    @Test
+    fun failedInvalidationRollsBackItemEdit() = runBlocking {
+        val proposal = send()
+        database.openHelper.writableDatabase.execSQL(
+            "CREATE TRIGGER fail_invalidation BEFORE UPDATE ON proposals BEGIN SELECT RAISE(ABORT, 'test failure'); END"
+        )
+        var failed = false
+        try {
+            ItemRepository.changeOwnedItem(database, aliceItem.id, aliceItem.ownerId) {
+                it.updateItem(newTitle = "Must roll back")
+            }
+        } catch (_: android.database.sqlite.SQLiteException) {
+            failed = true
+        }
+        assertTrue(failed)
+        assertEquals(aliceItem, database.items().getById(aliceItem.id))
+        assertEquals(ProposalStatus.PENDING, database.proposals().getById(proposal.id)?.status)
+    }
+
 }

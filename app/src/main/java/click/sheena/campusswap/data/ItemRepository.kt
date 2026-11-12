@@ -66,8 +66,14 @@ object ItemRepository {
         itemId: String,
         userId: String,
         change: (Item) -> Item
+    ): Item? = changeOwnedItem(CampusSwapDatabase.ready(), itemId, userId, change)
+
+    internal suspend fun changeOwnedItem(
+        database: CampusSwapDatabase,
+        itemId: String,
+        userId: String,
+        change: (Item) -> Item
     ): Item? {
-        val database = CampusSwapDatabase.ready()
         val dao = database.items()
 
         return database.withTransaction {
@@ -75,7 +81,9 @@ object ItemRepository {
             if (!current.canBeEditedBy(userId)) return@withTransaction null
 
             val updated = change(current)
+            if (updated == current) return@withTransaction current
             dao.update(updated)
+            database.proposals().invalidateForItems(listOf(itemId))
             updated
         }
     }
