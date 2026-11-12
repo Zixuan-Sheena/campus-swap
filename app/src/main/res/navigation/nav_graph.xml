@@ -73,4 +73,29 @@
         android:name="click.sheena.campusswap.ui.screens.AboutFragment"
         android:label="@string/profile_about" />
 
+    <fragment
+        android:id="@+id/proposalFragment"
+        android:name="click.sheena.campusswap.ui.screens.ProposalFragment"
+        android:label="@string/chat_proposal_message">
+        <argument android:name="proposalId" app:argType="string" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/proposalEditFragment"
+        android:name="click.sheena.campusswap.ui.screens.ProposalEditFragment"
+        android:label="@string/proposal_edit_title">
+        <argument android:name="proposalId" app:argType="string" app:nullable="true" android:defaultValue="@null" />
+        <argument android:name="conversationId" app:argType="string" app:nullable="true" android:defaultValue="@null" />
+        <argument android:name="otherUserId" app:argType="string" app:nullable="true" android:defaultValue="@null" />
+        <argument android:name="itemId" app:argType="string" app:nullable="true" android:defaultValue="@null" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/proposalItemPickerFragment"
+        android:name="click.sheena.campusswap.ui.screens.ProposalItemPickerFragment"
+        android:label="@string/proposal_select_items">
+        <argument android:name="ownerId" app:argType="string" />
+        <argument android:name="selectedIds" app:argType="string[]" />
+    </fragment>
+
 </navigation>

@@ -48,6 +48,8 @@ abstract class CampusSwapDatabase : RoomDatabase() {
                 database.withTransaction {
                     if (!database.conversations().hasConversations()) {
                         database.conversations().insertAll(SampleData.conversations)
+                        database.proposals().insertAll(SampleData.proposals)
+                        database.proposalItems().insertAll(SampleData.proposalItems)
                         database.messages().insertAll(SampleData.messages)
                     }
                     if (!database.items().hasItems()) {

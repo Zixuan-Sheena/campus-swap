@@ -64,4 +64,37 @@
     <string name="chat_proposal_message">Proposal</string>
     <string name="chat_proposal_not_ready">This feature is not ready yet.</string>
 
+    <string name="proposal_status_label">Exchange proposal · %1$s</string>
+    <string name="proposal_pending">Pending</string>
+    <string name="proposal_rejected">Rejected</string>
+    <string name="proposal_withdrawn">Withdrawn</string>
+    <string name="proposal_accepted">Accepted</string>
+    <string name="proposal_superseded">Superseded</string>
+    <string name="proposal_invalidated">Invalidated</string>
+    <string name="proposal_other_gives">%1$s gives:</string>
+    <string name="proposal_you_give">You give:</string>
+    <string name="proposal_meeting">Date and time: %1$s</string>
+    <string name="proposal_location">Location (Eircode): %1$s</string>
+    <string name="proposal_accept">Accept</string>
+    <string name="proposal_reject">Reject</string>
+    <string name="proposal_withdraw">Withdraw</string>
+    <string name="proposal_reject_edit">Reject and edit</string>
+    <string name="proposal_withdraw_edit">Withdraw and edit</string>
+    <string name="proposal_edit_resend">Edit and resend</string>
+    <string name="proposal_not_implemented">Not implemented yet.</string>
+    <string name="proposal_edit_title">Edit proposal</string>
+    <string name="proposal_edit_items">Edit items</string>
+    <string name="proposal_edit_meeting">Change date and time</string>
+    <string name="proposal_eircode">Location (Eircode)</string>
+    <string name="proposal_select_items">Select items</string>
+    <string name="proposal_selection_count">Selected %1$d / 8</string>
+    <string name="proposal_selection_limit">You can select up to 8 items.</string>
+    <string name="proposal_select_item">Select %1$s</string>
+    <string name="proposal_confirm_selection">Confirm</string>
+    <string name="proposal_resend">Resend proposal</string>
+    <string name="proposal_no_available_items">No available items.</string>
+    <string name="proposal_send">Send proposal</string>
+    <string name="proposal_sent">Proposal sent.</string>
+    <string name="proposal_send_failed">Could not send this proposal. Please try again.</string>
+    <string name="proposal_start_exchange">Propose exchange</string>
 </resources>

@@ -94,6 +94,19 @@ class ItemDetailFragment : Fragment(R.layout.fragment_item_detail) {
                     true
                 }
 
+                R.id.action_propose_exchange -> {
+                    item?.let { currentItem ->
+                        findNavController().navigate(
+                            R.id.proposalEditFragment,
+                            Bundle().apply {
+                                putString(ProposalEditFragment.ARG_OTHER_USER_ID, currentItem.ownerId)
+                                putString(ProposalEditFragment.ARG_ITEM_ID, currentItem.id)
+                            }
+                        )
+                    }
+                    true
+                }
+
                 R.id.action_edit_item -> {
                     item?.let { currentItem ->
                         findNavController().navigate(
@@ -134,6 +147,8 @@ class ItemDetailFragment : Fragment(R.layout.fragment_item_detail) {
             updateFavouriteIcon(menu, isFavourite)
         }
 
+        menu.findItem(R.id.action_propose_exchange).isVisible =
+            currentUser != null && !isOwner && currentItem.isAvailable()
         favouriteAction.isVisible = currentUser != null && !isOwner
         val canEdit = isOwner && currentItem.isAvailable()
         editAction.isVisible = canEdit

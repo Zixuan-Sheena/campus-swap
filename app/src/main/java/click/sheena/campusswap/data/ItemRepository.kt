@@ -15,6 +15,9 @@ object ItemRepository {
     suspend fun getItemById(itemId: String): Item? =
         CampusSwapDatabase.ready().items().getById(itemId)
 
+    suspend fun getItemsByIds(itemIds: List<String>): List<Item> =
+        CampusSwapDatabase.ready().items().getByIds(itemIds)
+
     suspend fun searchItems(
         category: ItemCategory? = null,
         keyword: String = ""

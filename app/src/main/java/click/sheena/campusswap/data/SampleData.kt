@@ -6,6 +6,9 @@ import click.sheena.campusswap.model.Item
 import click.sheena.campusswap.model.ItemCategory
 import click.sheena.campusswap.model.Message
 import click.sheena.campusswap.model.User
+import click.sheena.campusswap.model.Proposal
+import click.sheena.campusswap.model.ProposalItem
+import click.sheena.campusswap.model.MessageType
 
 object SampleData {
     val items = listOf(
@@ -118,7 +121,42 @@ object SampleData {
         )
     )
 
+    val proposals = listOf(
+        Proposal(
+            id = "proposal-bob-alice",
+            conversationId = "conversation-alice-bob",
+            version = 1,
+            proposerId = "1919810",
+            receiverId = "114514",
+            meetingAt = System.currentTimeMillis() + 3 * 24 * 60 * 60 * 1000L,
+            eircode = "T12 AY95",
+            createdAt = 1768473180000L
+        )
+    )
+
+    val proposalItems = items.filter { it.id in listOf("114514-2", "1919810-2") }
+        .map { item ->
+            ProposalItem(
+                proposalId = "proposal-bob-alice",
+                itemId = item.id,
+                ownerIdSnapshot = item.ownerId,
+                itemRevision = item.revision,
+                titleSnapshot = item.title,
+                descriptionSnapshot = item.description,
+                categorySnapshot = item.category.name,
+                imagePathSnapshot = item.imagePath
+            )
+        }
+
     val messages = listOf(
+        Message(
+            id = "message-proposal-1",
+            conversationId = "conversation-alice-bob",
+            senderId = "1919810",
+            type = MessageType.PROPOSAL,
+            proposalId = "proposal-bob-alice",
+            createdAt = 1768473180000L
+        ),
         Message(
             id = "message-1",
             conversationId = "conversation-alice-bob",

@@ -10,7 +10,7 @@
         android:id="@+id/chatDetailToolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:navigationIcon="@drawable/ic_back_arrow" />
+        app:navigationIcon="@drawable/ic_back_arrow" />
 
     <FrameLayout
         android:layout_width="match_parent"

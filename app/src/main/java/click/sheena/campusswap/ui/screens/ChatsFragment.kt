@@ -13,6 +13,9 @@ import androidx.recyclerview.widget.RecyclerView
 import click.sheena.campusswap.R
 import click.sheena.campusswap.data.ConversationRepository
 import click.sheena.campusswap.data.MessageRepository
+import click.sheena.campusswap.data.ProposalRepository
+import click.sheena.campusswap.model.MessageType
+import click.sheena.campusswap.ui.proposalLabel
 import click.sheena.campusswap.data.UserRepository
 import click.sheena.campusswap.data.UserSession
 import click.sheena.campusswap.ui.adapters.ConversationAdapter
@@ -60,10 +63,19 @@ class ChatsFragment : Fragment(R.layout.fragment_chats) {
 
                         val participant = UserRepository.getUserById(otherUserId)
 
+                        val preview = when (latestMessage?.type) {
+                            MessageType.PROPOSAL -> latestMessage.proposalId?.let {
+                                ProposalRepository.getById(it)
+                            }?.let { requireContext().proposalLabel(it.status) }
+                                ?: getString(R.string.chat_proposal_message)
+                            MessageType.IMAGE -> getString(R.string.chat_image_message)
+                            else -> latestMessage?.text ?: getString(R.string.chat_no_messages)
+                        }
+
                         ConversationListItem(
                             conversationId = conversation.id,
                             participantName = participant?.name ?: getString(R.string.unknown_user),
-                            preview = latestMessage?.text ?: getString(R.string.chat_no_messages)
+                            preview = preview
                         )
                     }
             }.orEmpty()

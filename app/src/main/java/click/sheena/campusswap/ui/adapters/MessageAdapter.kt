@@ -13,11 +13,16 @@ import click.sheena.campusswap.R
 import click.sheena.campusswap.data.ItemImageStorage
 import click.sheena.campusswap.model.Message
 import click.sheena.campusswap.model.MessageType
+import click.sheena.campusswap.model.ProposalStatus
+import click.sheena.campusswap.ui.proposalLabel
 
 class MessageAdapter(
     private var messages: List<Message>,
-    private val currentUserId: String
+    private val currentUserId: String,
+    private val onProposalClick: (String) -> Unit
 ) : RecyclerView.Adapter<MessageAdapter.MessageViewHolder>() {
+
+    private var proposalStatuses: Map<String, ProposalStatus> = emptyMap()
 
     class MessageViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val bubble: View = view.findViewById(R.id.messageBubble)
@@ -51,6 +56,9 @@ class MessageAdapter(
         holder.bubble.layoutParams = layoutParams
         holder.bubble.isSelected = isOwnMessage
 
+        holder.bubble.setOnClickListener(null)
+        holder.bubble.isClickable = false
+
         when (message.type) {
             MessageType.TEXT -> {
                 holder.text.isVisible = true
@@ -76,14 +84,20 @@ class MessageAdapter(
             MessageType.PROPOSAL -> {
                 holder.text.isVisible = true
                 holder.image.isVisible = false
-                holder.text.setText(R.string.chat_proposal_message)
+                val status = proposalStatuses[message.proposalId]
+                holder.text.text = status?.let { holder.itemView.context.proposalLabel(it) }
+                    ?: holder.itemView.context.getString(R.string.chat_proposal_message)
+                message.proposalId?.let { proposalId ->
+                    holder.bubble.setOnClickListener { onProposalClick(proposalId) }
+                }
             }
         }
     }
 
     override fun getItemCount(): Int = messages.size
 
-    fun updateItems(newMessages: List<Message>) {
+    fun updateItems(newMessages: List<Message>, statuses: Map<String, ProposalStatus>) {
+        proposalStatuses = statuses
         messages = newMessages
         notifyDataSetChanged()
     }

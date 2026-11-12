@@ -21,6 +21,7 @@ import click.sheena.campusswap.R
 import click.sheena.campusswap.data.ConversationRepository
 import click.sheena.campusswap.data.ItemImageStorage
 import click.sheena.campusswap.data.MessageRepository
+import click.sheena.campusswap.data.ProposalRepository
 import click.sheena.campusswap.data.UserRepository
 import click.sheena.campusswap.data.UserSession
 import click.sheena.campusswap.ui.adapters.MessageAdapter
@@ -103,11 +104,12 @@ class ChatDetailFragment : Fragment(R.layout.fragment_chat_detail) {
 
             view.findViewById<MaterialButton>(R.id.createProposalButton)
                 .setOnClickListener {
-                    Toast.makeText(
-                        requireContext(),
-                        R.string.chat_proposal_not_ready,
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    findNavController().navigate(
+                        R.id.proposalEditFragment,
+                        Bundle().apply {
+                            putString(ProposalEditFragment.ARG_CONVERSATION_ID, loadedConversationId)
+                        }
+                    )
                 }
 
             refreshMessages()
@@ -128,7 +130,13 @@ class ChatDetailFragment : Fragment(R.layout.fragment_chat_detail) {
 
         messageAdapter = MessageAdapter(
             messages = emptyList(),
-            currentUserId = currentUserId
+            currentUserId = currentUserId,
+            onProposalClick = { proposalId ->
+                findNavController().navigate(
+                    R.id.proposalFragment,
+                    Bundle().apply { putString(ProposalFragment.ARG_PROPOSAL_ID, proposalId) }
+                )
+            }
         )
 
         recyclerView.adapter = messageAdapter
@@ -236,7 +244,9 @@ class ChatDetailFragment : Fragment(R.layout.fragment_chat_detail) {
             currentConversationId
         )
 
-        messageAdapter?.updateItems(messages)
+        val statuses = ProposalRepository.getForConversation(currentConversationId)
+            .associate { it.id to it.status }
+        messageAdapter?.updateItems(messages, statuses)
 
         view?.findViewById<TextView>(R.id.emptyMessagesText)
             ?.isVisible = messages.isEmpty()

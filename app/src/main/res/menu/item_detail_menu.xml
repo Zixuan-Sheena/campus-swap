@@ -18,4 +18,9 @@
         android:title="@string/withdraw_item"
         app:showAsAction="never" />
 
+    <item
+        android:id="@+id/action_propose_exchange"
+        android:title="@string/proposal_start_exchange"
+        app:showAsAction="ifRoom" />
+
 </menu>
