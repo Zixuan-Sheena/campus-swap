@@ -4,6 +4,8 @@ import android.os.Bundle
 import android.view.View
 import android.widget.TextView
 import androidx.core.view.isVisible
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -42,40 +44,42 @@ class ChatsFragment : Fragment(R.layout.fragment_chats) {
     override fun onResume() {
         super.onResume()
 
-        val user = UserSession.getCurrentUser()
-        val conversations = user?.let { currentUser ->
-            ConversationRepository.getConversationsForUser(currentUser.id)
-                .mapNotNull { conversation ->
-                    val otherUserId = ConversationRepository.getOtherUserId(
-                        conversation,
-                        currentUser.id
-                    ) ?: return@mapNotNull null
+        viewLifecycleOwner.lifecycleScope.launch {
+            val user = UserSession.getCurrentUser()
+            val conversations = user?.let { currentUser ->
+                ConversationRepository.getConversationsForUser(currentUser.id)
+                    .map { conversation ->
+                        conversation to MessageRepository.getLatestMessage(conversation.id)
+                    }
+                    .sortedByDescending { it.second?.createdAt ?: Long.MIN_VALUE }
+                    .mapNotNull { (conversation, latestMessage) ->
+                        val otherUserId = ConversationRepository.getOtherUserId(
+                            conversation,
+                            currentUser.id
+                        ) ?: return@mapNotNull null
 
-                    val participant = UserRepository.getUserById(otherUserId)
-                    val latestMessage = MessageRepository.getLatestMessage(conversation.id)
+                        val participant = UserRepository.getUserById(otherUserId)
 
-                    ConversationListItem(
-                        conversationId = conversation.id,
-                        participantName = participant?.name ?: getString(R.string.unknown_user),
-                        preview = latestMessage?.text ?: getString(R.string.chat_no_messages)
-                    )
+                        ConversationListItem(
+                            conversationId = conversation.id,
+                            participantName = participant?.name ?: getString(R.string.unknown_user),
+                            preview = latestMessage?.text ?: getString(R.string.chat_no_messages)
+                        )
+                    }
+            }.orEmpty()
+
+            conversationAdapter?.updateItems(conversations)
+
+            view?.findViewById<RecyclerView>(R.id.conversationsRecyclerView)?.isVisible =
+                conversations.isNotEmpty()
+
+            view?.findViewById<TextView>(R.id.emptyChatsText)?.apply {
+                isVisible = conversations.isEmpty()
+                text = if (user == null) {
+                    getString(R.string.chat_login_required)
+                } else {
+                    getString(R.string.chat_empty)
                 }
-                .sortedByDescending { item ->
-                    MessageRepository.getLatestMessage(item.conversationId)?.createdAt ?: Long.MIN_VALUE
-                }
-        }.orEmpty()
-
-        conversationAdapter?.updateItems(conversations)
-
-        view?.findViewById<RecyclerView>(R.id.conversationsRecyclerView)?.isVisible =
-            conversations.isNotEmpty()
-
-        view?.findViewById<TextView>(R.id.emptyChatsText)?.apply {
-            isVisible = conversations.isEmpty()
-            text = if (user == null) {
-                getString(R.string.chat_login_required)
-            } else {
-                getString(R.string.chat_empty)
             }
         }
     }

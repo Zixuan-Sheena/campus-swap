@@ -1,6 +1,8 @@
 package click.sheena.campusswap.model
 
 import java.util.UUID
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 
 enum class MessageType {
     TEXT,
@@ -8,8 +10,9 @@ enum class MessageType {
     PROPOSAL
 }
 
+@Entity(tableName = "messages")
 data class Message(
-    val id: String = UUID.randomUUID().toString(),
+    @PrimaryKey val id: String = UUID.randomUUID().toString(),
     val conversationId: String,
     val senderId: String,
     val type: MessageType = MessageType.TEXT,

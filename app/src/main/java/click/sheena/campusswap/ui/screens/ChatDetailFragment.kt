@@ -11,6 +11,8 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.isVisible
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -48,66 +50,68 @@ class ChatDetailFragment : Fragment(R.layout.fragment_chat_detail) {
     ) {
         super.onViewCreated(view, savedInstanceState)
 
-        val user = UserSession.getCurrentUser()
+        viewLifecycleOwner.lifecycleScope.launch {
+            val user = UserSession.getCurrentUser()
 
-        val loadedConversationId =
-            arguments?.getString(ARG_CONVERSATION_ID)
-                ?: run {
-                    findNavController().navigateUp()
-                    return
-                }
+            val loadedConversationId =
+                arguments?.getString(ARG_CONVERSATION_ID)
+                    ?: run {
+                        findNavController().navigateUp()
+                        return@launch
+                    }
 
-        val conversation =
-            ConversationRepository.getConversationById(
-                loadedConversationId
-            )
+            val conversation =
+                ConversationRepository.getConversationById(
+                    loadedConversationId
+                )
 
-        if (
-            user == null ||
-            conversation == null ||
-            ConversationRepository.getOtherUserId(
-                conversation,
-                user.id
-            ) == null
-        ) {
-            findNavController().navigateUp()
-            return
-        }
-
-        conversationId = loadedConversationId
-
-        val otherUserId = ConversationRepository.getOtherUserId(
-            conversation,
-            user.id
-        )!!
-
-        val otherUser = UserRepository.getUserById(otherUserId)
-
-        val toolbar =
-            view.findViewById<Toolbar>(R.id.chatDetailToolbar)
-
-        toolbar.title =
-            otherUser?.name ?: getString(R.string.unknown_user)
-
-        toolbar.setNavigationOnClickListener {
-            findNavController().navigateUp()
-        }
-
-        setupMessages(view, user.id)
-        setupExtensions(view)
-        setupTextMessageSending(view, loadedConversationId, user.id)
-        setupImageSending(view)
-
-        view.findViewById<MaterialButton>(R.id.createProposalButton)
-            .setOnClickListener {
-                Toast.makeText(
-                    requireContext(),
-                    R.string.chat_proposal_not_ready,
-                    Toast.LENGTH_SHORT
-                ).show()
+            if (
+                user == null ||
+                conversation == null ||
+                ConversationRepository.getOtherUserId(
+                    conversation,
+                    user.id
+                ) == null
+            ) {
+                findNavController().navigateUp()
+                return@launch
             }
 
-        refreshMessages()
+            conversationId = loadedConversationId
+
+            val otherUserId = ConversationRepository.getOtherUserId(
+                conversation,
+                user.id
+            )!!
+
+            val otherUser = UserRepository.getUserById(otherUserId)
+
+            val toolbar =
+                view.findViewById<Toolbar>(R.id.chatDetailToolbar)
+
+            toolbar.title =
+                otherUser?.name ?: getString(R.string.unknown_user)
+
+            toolbar.setNavigationOnClickListener {
+                findNavController().navigateUp()
+            }
+
+            setupMessages(view, user.id)
+            setupExtensions(view)
+            setupTextMessageSending(view, loadedConversationId, user.id)
+            setupImageSending(view)
+
+            view.findViewById<MaterialButton>(R.id.createProposalButton)
+                .setOnClickListener {
+                    Toast.makeText(
+                        requireContext(),
+                        R.string.chat_proposal_not_ready,
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+
+            refreshMessages()
+        }
     }
 
     private fun setupMessages(
@@ -170,15 +174,18 @@ class ChatDetailFragment : Fragment(R.layout.fragment_chat_detail) {
                 val input =
                     view.findViewById<EditText>(R.id.messageInput)
 
-                val sentMessage = MessageRepository.sendTextMessage(
-                    conversationId = loadedConversationId,
-                    senderId = currentUserId,
-                    text = input.text.toString()
-                )
+                val text = input.text.toString()
+                viewLifecycleOwner.lifecycleScope.launch {
+                    val sentMessage = MessageRepository.sendTextMessage(
+                        conversationId = loadedConversationId,
+                        senderId = currentUserId,
+                        text = text
+                    )
 
-                if (sentMessage != null) {
-                    input.text?.clear()
-                    refreshMessages()
+                    if (sentMessage != null) {
+                        input.text?.clear()
+                        refreshMessages()
+                    }
                 }
             }
     }
@@ -198,29 +205,31 @@ class ChatDetailFragment : Fragment(R.layout.fragment_chat_detail) {
         val currentConversationId = conversationId ?: return
         val currentUserId = UserSession.getCurrentUser()?.id ?: return
 
-        try {
-            val imagePath = ItemImageStorage.copyImage(
-                requireContext(),
-                uri
-            )
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                val imagePath = ItemImageStorage.copyImage(
+                    requireContext(),
+                    uri
+                )
 
-            MessageRepository.sendImageMessage(
-                conversationId = currentConversationId,
-                senderId = currentUserId,
-                imagePath = imagePath
-            )
+                MessageRepository.sendImageMessage(
+                    conversationId = currentConversationId,
+                    senderId = currentUserId,
+                    imagePath = imagePath
+                )
 
-            refreshMessages()
-        } catch (_: Exception) {
-            Toast.makeText(
-                requireContext(),
-                R.string.chat_image_send_failed,
-                Toast.LENGTH_SHORT
-            ).show()
+                refreshMessages()
+            } catch (_: Exception) {
+                Toast.makeText(
+                    requireContext(),
+                    R.string.chat_image_send_failed,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
         }
     }
 
-    private fun refreshMessages() {
+    private suspend fun refreshMessages() {
         val currentConversationId = conversationId ?: return
 
         val messages = MessageRepository.getMessages(

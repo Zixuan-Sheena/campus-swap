@@ -4,23 +4,13 @@ import click.sheena.campusswap.model.Message
 import click.sheena.campusswap.model.MessageType
 
 object MessageRepository {
-    private val messages = SampleData.messages.map { it.copy() }.toMutableList()
+    suspend fun getMessages(conversationId: String): List<Message> =
+        CampusSwapDatabase.ready().messages().getForConversation(conversationId)
 
-    fun getMessages(conversationId: String): List<Message> {
-        return messages
-            .filter { it.conversationId == conversationId }
-            .sortedBy { it.createdAt }
-            .map { it.copy() }
-    }
+    suspend fun getLatestMessage(conversationId: String): Message? =
+        CampusSwapDatabase.ready().messages().getLatest(conversationId)
 
-    fun getLatestMessage(conversationId: String): Message? {
-        return messages
-            .filter { it.conversationId == conversationId }
-            .maxByOrNull { it.createdAt }
-            ?.copy()
-    }
-
-    fun sendTextMessage(
+    suspend fun sendTextMessage(
         conversationId: String,
         senderId: String,
         text: String
@@ -33,10 +23,10 @@ object MessageRepository {
             senderId = senderId,
             text = trimmedText,
             createdAt = System.currentTimeMillis()
-        ).also { messages.add(it) }
+        ).also { CampusSwapDatabase.ready().messages().insert(it) }
     }
 
-    fun sendImageMessage(
+    suspend fun sendImageMessage(
         conversationId: String,
         senderId: String,
         imagePath: String
@@ -48,7 +38,7 @@ object MessageRepository {
             imagePath = imagePath,
             createdAt = System.currentTimeMillis()
         ).also { message ->
-            messages.add(message)
+            CampusSwapDatabase.ready().messages().insert(message)
         }
     }
 }
